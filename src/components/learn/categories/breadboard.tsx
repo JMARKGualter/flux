@@ -14,20 +14,20 @@ const breadboardModels = {
     scale: 22,
     category: 'breadboard'
   },
-  'mini': { 
-    url: '/models/breadboard/BreadboardMini17R10C.glb', 
-    name: 'Mini Breadboard', 
-    position: [35, 50, 75] as [number, number, number], 
-    target: [0, 10, 0] as [number, number, number],
-    scale: 18,
-    category: 'breadboard'
-  },
   'small': { 
     url: '/models/breadboard/BreadboardSmall30R10C.glb', 
     name: 'Small Breadboard', 
     position: [38, 55, 80] as [number, number, number], 
     target: [0, 11, 0] as [number, number, number],
     scale: 20,
+    category: 'breadboard'
+  },
+  'mini': { 
+    url: '/models/breadboard/BreadboardMini17R10C.glb', 
+    name: 'Mini Breadboard', 
+    position: [35, 50, 75] as [number, number, number], 
+    target: [0, 10, 0] as [number, number, number],
+    scale: 18,
     category: 'breadboard'
   }
 };
@@ -80,19 +80,19 @@ export function BreadboardCategory({ onModelSelect }: BreadboardCategoryProps) {
           </li>
           
           <li
-            onClick={() => handleModelClick('mini')}
-            className="flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors hover:bg-blue-500/10 text-sm"
-          >
-            <span className="w-1 h-1 rounded-full bg-blue-400"></span>
-            <span>Mini Breadboard 17R10C</span>
-          </li>
-          
-          <li
             onClick={() => handleModelClick('small')}
             className="flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors hover:bg-blue-500/10 text-sm"
           >
             <span className="w-1 h-1 rounded-full bg-blue-400"></span>
             <span>Small Breadboard 30R10C</span>
+          </li>
+          
+          <li
+            onClick={() => handleModelClick('mini')}
+            className="flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors hover:bg-blue-500/10 text-sm"
+          >
+            <span className="w-1 h-1 rounded-full bg-blue-400"></span>
+            <span>Mini Breadboard 17R10C</span>
           </li>
         </ul>
       )}

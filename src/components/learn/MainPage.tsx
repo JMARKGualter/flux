@@ -10,6 +10,11 @@ import { BreadboardCategory } from './categories/breadboard';
 import { DisplayCategory } from './categories/display';
 import { GeneralCategory } from './categories/general';
 import { InputCategory } from './categories/input';
+import { MotorCategory } from './categories/motor';
+import { OutputCategory } from './categories/output';
+import { PowerCategory } from './categories/power';
+import { PowerControlCategory } from './categories/powercontrol';
+
 
 // Configure Draco loader globally
 useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
@@ -185,10 +190,10 @@ const getModelViewConfig = (url: string): { position: [number, number, number]; 
   // Breadboard
   if (url.includes('Breadboard63R10C')) 
     return { position: [40, 60, 90], target: [0, 12, 0] };
-  if (url.includes('BreadboardMini')) 
-    return { position: [35, 50, 75], target: [0, 10, 0] };
   if (url.includes('BreadboardSmall')) 
     return { position: [38, 55, 80], target: [0, 11, 0] };
+  if (url.includes('BreadboardMini')) 
+    return { position: [35, 50, 75], target: [0, 10, 0] };
   
   // Display
   if (url.includes('7SegmentClock')) 
@@ -251,6 +256,56 @@ const getModelViewConfig = (url: string): { position: [number, number, number]; 
     return { position: [34, 50, 70], target: [0, 9, 0] };
   if (url.includes('UltrasonicDistanceSensor')) 
     return { position: [34, 50, 70], target: [0, 9, 0] };
+
+  // Motor
+  if (url.includes('DCMotor')) 
+    return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('DCMotorWithEncoder')) 
+    return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('HobbyGearMotor'))
+    return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('MicroServo')) 
+    return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('VibrationMotor')) 
+    return { position: [32, 48, 68], target: [0, 8, 0] };
+
+  // Output
+  if (url.includes('LED')) 
+    return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('RGBLED')) 
+    return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('LightBulb'))
+    return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('NeoPixel')) 
+    return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('PiezoBuzzer')) 
+    return { position: [32, 48, 68], target: [0, 8, 0] };
+
+  // Power
+  if (url.includes('15Battery')) 
+    return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('9Battery')) 
+    return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('CoinCell'))
+    return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('SolarCell')) 
+    return { position: [32, 48, 68], target: [0, 8, 0] };
+
+  // Power Control
+  if (url.includes('nMOSMOSFET')) 
+    return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('pMOSMOSFET')) 
+    return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('NPNTransistor'))
+    return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('PNPTransistor')) 
+    return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('nMOSTransistor')) 
+    return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('pMOSTransistor'))
+    return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('TIP120')) 
+    return { position: [32, 48, 68], target: [0, 8, 0] };
   
   return { position: [30, 45, 65], target: [0, 8, 0] };
 };
@@ -340,12 +395,10 @@ export function MainPage() {
                 <DisplayCategory onModelSelect={handleModelSelect} />
                 <GeneralCategory onModelSelect={handleModelSelect} />
                 <InputCategory onModelSelect={handleModelSelect} />
-                {['Motor', 'Output', 'Power', 'Power Control'].map((cat) => (
-                  <li key={cat} className="flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors hover:bg-blue-500/10">
-                    <Folder className="w-4 h-4 text-blue-400/80" />
-                    <span>{cat}</span>
-                  </li>
-                ))}
+                <MotorCategory onModelSelect={handleModelSelect} />
+                <OutputCategory onModelSelect={handleModelSelect} />
+                <PowerCategory onModelSelect={handleModelSelect} />
+                <PowerControlCategory onModelSelect={handleModelSelect} />
               </ul>
             </aside>
 
@@ -376,7 +429,7 @@ export function MainPage() {
                   }}
                   performance={{ min: 0.5 }}
                 >
-                  <ambientLight intensity={1.2} />
+                  <ambientLight intensity={3} />
                   <directionalLight position={[30, 60, 30]} intensity={3} />
                   <directionalLight position={[-30, 50, 20]} intensity={2.5} />
                   <directionalLight position={[0, 80, -30]} intensity={2} />
@@ -390,8 +443,8 @@ export function MainPage() {
                     infiniteGrid
                     fadeDistance={400}
                     fadeStrength={5}
-                    sectionColor={isDark ? '#3f6a9e' : '#a0b8d0'}
-                    cellColor={isDark ? '#2a4a6e' : '#c0d0e0'}
+                    sectionColor={isDark ? '#c7d4e4' : '#a0b8d0'}
+                    cellColor={isDark ? '#adb8c4' : '#ffffff'}
                   />
                   
                   <OrbitControls 
