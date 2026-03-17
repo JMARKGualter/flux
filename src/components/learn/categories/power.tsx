@@ -51,12 +51,6 @@ interface PowerCategoryProps {
 export function PowerCategory({ onModelSelect }: PowerCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    Object.values(powerModels).forEach(model => {
-      useGLTF.preload(model.url);
-    });
-  }, []);
-
   const handleModelClick = (modelId: string) => {
     const model = powerModels[modelId as keyof typeof powerModels];
     if (model) {

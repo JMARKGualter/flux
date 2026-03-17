@@ -76,13 +76,6 @@ interface GeneralCategoryProps {
 export function GeneralCategory({ onModelSelect }: GeneralCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Preload all general models with Draco
-  useEffect(() => {
-    Object.values(generalModels).forEach(model => {
-      useGLTF.preload(model.url);
-    });
-  }, []);
-
   const handleModelClick = (modelId: string) => {
     const model = generalModels[modelId as keyof typeof generalModels];
     if (model) {

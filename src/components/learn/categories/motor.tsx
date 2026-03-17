@@ -60,13 +60,6 @@ interface MotorCategoryProps {
 export function MotorCategory({ onModelSelect }: MotorCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Preload all motor models with Draco
-  useEffect(() => {
-    Object.values(motorModels).forEach(model => {
-      useGLTF.preload(model.url);
-    });
-  }, []);
-
   const handleModelClick = (modelId: string) => {
     const model = motorModels[modelId as keyof typeof motorModels];
     if (model) {

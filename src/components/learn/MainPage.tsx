@@ -2,9 +2,9 @@
 
 import { useState, Suspense, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Sun, Moon, LayoutGrid, Folder, Orbit, Hand } from 'lucide-react';
+import { ArrowLeft, Sun, Moon, LayoutGrid, Orbit, Hand } from 'lucide-react';
 import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls, Center, Preload, useGLTF, Grid } from '@react-three/drei';
+import { OrbitControls, Center, useGLTF, Grid } from '@react-three/drei';
 import * as THREE from 'three';
 import { BreadboardCategory } from './categories/breadboard';
 import { DisplayCategory } from './categories/display';
@@ -15,48 +15,174 @@ import { OutputCategory } from './categories/output';
 import { PowerCategory } from './categories/power';
 import { PowerControlCategory } from './categories/powercontrol';
 
-
 // Configure Draco loader globally
 useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
 
-// ==================== MODEL COMPONENT WITH DRACO ====================
-function ComponentModel({ url, isActive, scale = 20 }: { url: string; isActive: boolean; scale?: number }) {
+// ==================== TOOLTIP DEFINITIONS ====================
+const meshTooltips: Record<string, string> = {
+  // LED
+  'LEDAnode': 'Anode (+). The longer pin. Current flows in here.',
+  'LEDCathode': 'Cathode (−). The shorter pin. Current flows out here.',
+  'LED_2': 'LED body. The epoxy lens that focuses and diffuses light.',
+
+  // Resistor
+  'ResistorBody_1': 'Resistor body. Limits the flow of electric current.',
+  'Band_1': 'First color band. Represents the first digit of resistance value.',
+  'Band_2': 'Second color band. Represents the second digit of resistance value.',
+  'Band_3': 'Third color band. Represents the multiplier.',
+  'Band_4': 'Fourth color band. Represents the tolerance.',
+  'ResistorPins': 'Lead. Connect this to your circuit.',
+
+  // Polarized Capacitor
+  'PolarCap_2': 'Capacitor body. Stores and releases electrical charge.',
+  'PolarCapAnode': 'Positive lead (+). Must be connected to higher potential.',
+  'PolarCapCathode': 'Negative lead (−). Must be connected to lower potential.',
+
+  // Capacitor
+  'Cylinder027': 'Ceramic body. responsible for storing electrical energy by creating an electric field when a voltage is applied across the capacitor.',
+  'Cylinder027_1': 'Lead. Connect this to your circuit.',
+
+  // Diode
+  'Cylinder016': 'P-N junction. Allows current to flow easily from the anode to the cathode.',
+  'Cylinder016_2': 'P-N junction. Allows current to flow easily from the anode to the cathode.',
+  'Cylinder016_1': 'Anode / Cathode. Current enters through the anode and exits the cathode',
+
+  // Zener Diode
+  'Cylinder005': 'P-N junction. Allows current to flow easily from the anode to the cathode.',
+  'Cylinder005_2': 'P-N junction. Allows current to flow easily from the anode to the cathode.',
+  'Cylinder005_1': 'Anode / Cathode. Current enters through the anode and exits the cathode',
+
+  // Add more mesh names here as you confirm them in gltf.report
+};
+
+// ==================== MODEL COMPONENT WITH DIRECT RAYCASTING ====================
+function ComponentModel({ url, isActive, scale = 20, onTooltipChange }: {
+  url: string;
+  isActive: boolean;
+  scale?: number;
+  onTooltipChange?: (tooltip: { text: string; x: number; y: number } | null) => void;
+}) {
   const { scene } = useGLTF(url);
-  const meshRef = useRef<THREE.Group>(null);
-  
+  const { camera, gl } = useThree();
+  const sceneRef = useRef<THREE.Group>(null);
+
   useEffect(() => {
-    return () => {
-      scene.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
-          if (obj.material) {
-            if (Array.isArray(obj.material)) {
-              obj.material.forEach(m => m.dispose());
-            } else {
-              obj.material.dispose();
+    if (!isActive) return;
+
+    // Force all meshes to double-sided so raycaster hits from any angle
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        if (Array.isArray(obj.material)) {
+          obj.material.forEach(m => m.side = THREE.DoubleSide);
+        } else {
+          obj.material.side = THREE.DoubleSide;
+        }
+      }
+    });
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let currentHovered: string | null = null;
+
+    const onPointerMove = (e: PointerEvent) => {
+      const rect = gl.domElement.getBoundingClientRect();
+      pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(pointer, camera);
+      scene.updateMatrixWorld(true);
+
+      const intersects = raycaster.intersectObjects(scene.children, true);
+
+      // Position relative to the canvas container
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (intersects.length > 0) {
+        const hit = intersects[0].object as THREE.Mesh;
+        console.log('Hovered mesh name:', hit.name);
+
+        if (hit.name !== currentHovered) {
+          // Unhighlight previous mesh
+          if (currentHovered) {
+            scene.traverse((obj) => {
+              if (obj instanceof THREE.Mesh && obj.name === currentHovered) {
+                const mat = obj.material as THREE.MeshStandardMaterial;
+                if (mat.emissive) {
+                  mat.emissive.set(0x000000);
+                  mat.emissiveIntensity = 0;
+                }
+              }
+            });
+          }
+
+          currentHovered = hit.name;
+
+          // Highlight new mesh
+          if (hit instanceof THREE.Mesh) {
+            const mat = hit.material as THREE.MeshStandardMaterial;
+            if (mat.emissive) {
+              mat.emissive.set(0x4488ff);
+              mat.emissiveIntensity = 0.3;
             }
           }
-          if (obj.geometry) obj.geometry.dispose();
+
+          if (meshTooltips[hit.name]) {
+            onTooltipChange?.({ text: meshTooltips[hit.name], x: x + 12, y });
+            document.body.style.cursor = 'pointer';
+          } else {
+            onTooltipChange?.(null);
+            document.body.style.cursor = 'default';
+          }
+        } else if (currentHovered && meshTooltips[currentHovered]) {
+          // Update tooltip position as mouse moves
+          onTooltipChange?.({ text: meshTooltips[currentHovered], x: x + 12, y });
         }
-      });
+      } else {
+        if (currentHovered) {
+          scene.traverse((obj) => {
+            if (obj instanceof THREE.Mesh && obj.name === currentHovered) {
+              const mat = obj.material as THREE.MeshStandardMaterial;
+              if (mat.emissive) {
+                mat.emissive.set(0x000000);
+                mat.emissiveIntensity = 0;
+              }
+            }
+          });
+          currentHovered = null;
+          onTooltipChange?.(null);
+          document.body.style.cursor = 'default';
+        }
+      }
     };
-  }, [scene]);
+
+    gl.domElement.addEventListener('pointermove', onPointerMove);
+
+    return () => {
+      gl.domElement.removeEventListener('pointermove', onPointerMove);
+      document.body.style.cursor = 'default';
+      onTooltipChange?.(null);
+    };
+  }, [scene, camera, gl, isActive, onTooltipChange]);
 
   if (!isActive) return null;
 
   return (
     <Center bottom position={[0, 10, 0]}>
-      <primitive ref={meshRef} object={scene.clone()} scale={scale} />
+      <group ref={sceneRef}>
+        <primitive object={scene} scale={scale} />
+      </group>
     </Center>
   );
 }
 
 // ==================== CAMERA RESET ====================
-function CameraReset({ position, target }: { 
-  position: [number, number, number]; 
-  target: [number, number, number] 
+function CameraReset({ position, target }: {
+  position: [number, number, number];
+  target: [number, number, number];
 }) {
   const { camera, controls } = useThree();
-  
+
   useEffect(() => {
     camera.position.set(...position);
     if (controls) {
@@ -118,7 +244,7 @@ function Header({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: () => v
 }
 
 // ==================== BACKGROUND ====================
-function AnimatedBackground({ isDark }: { isDark: boolean}) {
+function AnimatedBackground({ isDark }: { isDark: boolean }) {
   return (
     <>
       <div className={`absolute inset-0 bg-[linear-gradient(rgba(30,58,138,${isDark ? 0.1 : 0.05})_1px,transparent_1px),linear-gradient(90deg,rgba(30,58,138,${isDark ? 0.1 : 0.05})_1px,transparent_1px)] bg-[size:50px_50px]`} />
@@ -129,12 +255,12 @@ function AnimatedBackground({ isDark }: { isDark: boolean}) {
 }
 
 // ==================== CONTROL PANEL ====================
-function CameraControlPanel({ 
-  isDark, 
-  controlMode, 
+function CameraControlPanel({
+  isDark,
+  controlMode,
   setControlMode,
-  onFrameView
-}: { 
+  onFrameView,
+}: {
   isDark: boolean;
   controlMode: 'orbit' | 'pan';
   setControlMode: (mode: 'orbit' | 'pan') => void;
@@ -145,7 +271,7 @@ function CameraControlPanel({
       <button
         onClick={() => setControlMode('orbit')}
         className={`p-2 rounded-md transition-all duration-200 ${
-          controlMode === 'orbit' 
+          controlMode === 'orbit'
             ? isDark ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
             : isDark ? 'hover:bg-blue-900/30' : 'hover:bg-blue-100'
         }`}
@@ -153,11 +279,11 @@ function CameraControlPanel({
       >
         <Orbit className="w-4 h-4" />
       </button>
-      
+
       <button
         onClick={() => setControlMode('pan')}
         className={`p-2 rounded-md transition-all duration-200 ${
-          controlMode === 'pan' 
+          controlMode === 'pan'
             ? isDark ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
             : isDark ? 'hover:bg-blue-900/30' : 'hover:bg-blue-100'
         }`}
@@ -187,126 +313,58 @@ function CameraControlPanel({
 
 // ==================== VIEW CONFIG ====================
 const getModelViewConfig = (url: string): { position: [number, number, number]; target: [number, number, number] } => {
-  // Breadboard
-  if (url.includes('Breadboard63R10C')) 
-    return { position: [40, 60, 90], target: [0, 12, 0] };
-  if (url.includes('BreadboardSmall')) 
-    return { position: [38, 55, 80], target: [0, 11, 0] };
-  if (url.includes('BreadboardMini')) 
-    return { position: [35, 50, 75], target: [0, 10, 0] };
-  
-  // Display
-  if (url.includes('7SegmentClock')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('7SegmentDisplay')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('LCD16x2_I2C'))
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-  if (url.includes('LCD16x2')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-  
-  // General - MAXIMUM ZOOM OUT with SLIGHTLY LOWER TARGET
-  if (url.includes('Capacitor') && !url.includes('Polarized')) 
-    return { position: [0, 120, 150], target: [0, 12, 0] };
-  if (url.includes('PolarizedCapacitor')) 
-    return { position: [0, 130, 160], target: [0, 14, 0] };
-  if (url.includes('Resistor')) 
-    return { position: [0, 100, 130], target: [0, 10, 0] };
-  if (url.includes('Diode') && !url.includes('Zener')) 
-    return { position: [0, 110, 140], target: [0, 11, 0] };
-  if (url.includes('ZenerDiode')) 
-    return { position: [0, 110, 140], target: [0, 11, 0] };
-  if (url.includes('Inductor')) 
-    return { position: [0, 125, 155], target: [0, 13, 0] };
-  
-  // Input - Using Display category settings
-  if (url.includes('4x4Keypad')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('AmbientLightSensor')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('DipSwitch')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('FlexSensor')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('ForceSensor')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('GasSensor')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('IRSensor')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('Photodiode')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('Photoresistor')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('PIRSensor')) 
-    return { position: [32, 48, 68], target: [0, 9, 0] };
-  if (url.includes('Potentiometer')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('PushButton')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('SlideSwitch')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('SoilMoistureSensor')) 
-    return { position: [32, 48, 68], target: [0, 9, 0] };
-  if (url.includes('TemperatureSensor')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('TiltSensor')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('UltrasonicDistanceSensor4Pins')) 
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-  if (url.includes('UltrasonicDistanceSensor')) 
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-
-  // Motor
-  if (url.includes('DCMotor')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('DCMotorWithEncoder')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('HobbyGearMotor'))
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-  if (url.includes('MicroServo')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-  if (url.includes('VibrationMotor')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-
-  // Output
-  if (url.includes('LED')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('RGBLED')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('LightBulb'))
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-  if (url.includes('NeoPixel')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-  if (url.includes('PiezoBuzzer')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-
-  // Power
-  if (url.includes('15Battery')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('9Battery')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('CoinCell'))
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-  if (url.includes('SolarCell')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-
-  // Power Control
-  if (url.includes('nMOSMOSFET')) 
-    return { position: [30, 45, 65], target: [0, 8, 0] };
-  if (url.includes('pMOSMOSFET')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('NPNTransistor'))
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-  if (url.includes('PNPTransistor')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-  if (url.includes('nMOSTransistor')) 
-    return { position: [28, 42, 60], target: [0, 7, 0] };
-  if (url.includes('pMOSTransistor'))
-    return { position: [34, 50, 70], target: [0, 9, 0] };
-  if (url.includes('TIP120')) 
-    return { position: [32, 48, 68], target: [0, 8, 0] };
-  
+  if (url.includes('Breadboard63R10C')) return { position: [40, 60, 90], target: [0, 12, 0] };
+  if (url.includes('BreadboardSmall')) return { position: [38, 55, 80], target: [0, 11, 0] };
+  if (url.includes('BreadboardMini')) return { position: [35, 50, 75], target: [0, 10, 0] };
+  if (url.includes('7SegmentClock')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('7SegmentDisplay')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('LCD16x2_I2C')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('LCD16x2')) return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('Capacitor') && !url.includes('Polarized')) return { position: [0, 120, 150], target: [0, 12, 0] };
+  if (url.includes('PolarizedCapacitor')) return { position: [0, 130, 160], target: [0, 14, 0] };
+  if (url.includes('Resistor')) return { position: [0, 100, 130], target: [0, 10, 0] };
+  if (url.includes('Diode') && !url.includes('Zener')) return { position: [0, 110, 140], target: [0, 11, 0] };
+  if (url.includes('ZenerDiode')) return { position: [0, 110, 140], target: [0, 11, 0] };
+  if (url.includes('Inductor')) return { position: [0, 125, 155], target: [0, 13, 0] };
+  if (url.includes('4x4Keypad')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('AmbientLightSensor')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('DipSwitch')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('FlexSensor')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('ForceSensor')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('GasSensor')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('IRSensor')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('Photodiode')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('Photoresistor')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('PIRSensor')) return { position: [32, 48, 68], target: [0, 9, 0] };
+  if (url.includes('Potentiometer')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('PushButton')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('SlideSwitch')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('SoilMoistureSensor')) return { position: [32, 48, 68], target: [0, 9, 0] };
+  if (url.includes('TemperatureSensor')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('TiltSensor')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('UltrasonicDistanceSensor4Pins')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('UltrasonicDistanceSensor')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('DCMotor')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('DCMotorWithEncoder')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('HobbyGearMotor')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('MicroServo')) return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('VibrationMotor')) return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('LED')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('RGBLED')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('LightBulb')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('NeoPixel')) return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('PiezoBuzzer')) return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('15Battery')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('9Battery')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('CoinCell')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('SolarCell')) return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('nMOSMOSFET')) return { position: [30, 45, 65], target: [0, 8, 0] };
+  if (url.includes('pMOSMOSFET')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('NPNTransistor')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('PNPTransistor')) return { position: [32, 48, 68], target: [0, 8, 0] };
+  if (url.includes('nMOSTransistor')) return { position: [28, 42, 60], target: [0, 7, 0] };
+  if (url.includes('pMOSTransistor')) return { position: [34, 50, 70], target: [0, 9, 0] };
+  if (url.includes('TIP120')) return { position: [32, 48, 68], target: [0, 8, 0] };
   return { position: [30, 45, 65], target: [0, 8, 0] };
 };
 
@@ -314,46 +372,34 @@ const getModelViewConfig = (url: string): { position: [number, number, number]; 
 export function MainPage() {
   const [isDark, setIsDark] = useState(false);
   const toggleTheme = () => setIsDark(!isDark);
-  
-  const [selectedModel, setSelectedModel] = useState<{ 
-    url: string; 
-    position: [number, number, number]; 
+  const viewerRef = useRef<HTMLDivElement>(null);
+
+  const [selectedModel, setSelectedModel] = useState<{
+    url: string;
+    position: [number, number, number];
     target: [number, number, number];
     scale: number;
   } | null>(null);
-  
+
   const [cameraPosition, setCameraPosition] = useState<[number, number, number]>([30, 45, 65]);
   const [cameraTarget, setCameraTarget] = useState<[number, number, number]>([0, 8, 0]);
   const [controlMode, setControlMode] = useState<'orbit' | 'pan'>('orbit');
   const [modelKey, setModelKey] = useState(0);
-  const [fov, setFov] = useState(20);
   const [isLoading, setIsLoading] = useState(false);
+  const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
 
   const handleModelSelect = useCallback((
-    url: string, 
-    position: [number, number, number], 
+    url: string,
+    position: [number, number, number],
     target: [number, number, number] = [0, 8, 0],
     scale: number = 20
   ) => {
     setIsLoading(true);
-    const viewConfig = getModelViewConfig(url);
-    const finalPosition = position;
-    const finalTarget = target;
-    
-    setSelectedModel({ url, position: finalPosition, target: finalTarget, scale });
-    setCameraPosition(finalPosition);
-    setCameraTarget(finalTarget);
-    
-    // Adjust FOV based on component type
-    if (url.includes('Breadboard63R10C')) setFov(18);
-    else if (url.includes('Breadboard')) setFov(19);
-    else if (url.includes('Resistor') || url.includes('Diode')) setFov(25);
-    else if (url.includes('Capacitor') || url.includes('Inductor')) setFov(26);
-    else setFov(20);
-    
+    setTooltip(null);
+    setSelectedModel({ url, position, target, scale });
+    setCameraPosition(position);
+    setCameraTarget(target);
     setModelKey(prev => prev + 1);
-    
-    // Simulate loading complete
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
@@ -376,7 +422,7 @@ export function MainPage() {
           mix-blend-mode: normal;
         }
       `}</style>
-      
+
       <div className={`min-h-screen ${isDark ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'} relative overflow-hidden flex flex-col`}>
         <AnimatedBackground isDark={isDark} />
 
@@ -403,38 +449,39 @@ export function MainPage() {
             </aside>
 
             {/* 3D Viewer */}
-            <div className={`rounded-lg border ${isDark ? 'bg-black/20 border-blue-900/30' : 'bg-white/20 border-blue-200/30'} backdrop-blur-sm flex items-center justify-center relative`}>
-              <CameraControlPanel 
+            <div
+              ref={viewerRef}
+              className={`rounded-lg border ${isDark ? 'bg-black/20 border-blue-900/30' : 'bg-white/20 border-blue-200/30'} backdrop-blur-sm flex items-center justify-center relative`}
+            >
+              <CameraControlPanel
                 isDark={isDark}
                 controlMode={controlMode}
                 setControlMode={setControlMode}
                 onFrameView={handleFrameView}
               />
-              
+
               {/* Loading indicator */}
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 backdrop-blur-sm">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
                 </div>
               )}
-              
+
               <div className="w-full h-full">
-                <Canvas 
-                  key={`canvas-${modelKey}`} 
-                  camera={{ position: cameraPosition, fov: fov, near: 0.1, far: 1000 }}
-                  gl={{ 
-                    powerPreference: "high-performance",
-                    antialias: true,
-                    alpha: false
+                <Canvas
+                  camera={{ position: [30, 45, 65], fov: 20, near: 0.1, far: 1000 }}
+                  onCreated={({ gl }) => {
+                    gl.domElement.addEventListener('webglcontextlost', (e) => {
+                      e.preventDefault();
+                    });
                   }}
-                  performance={{ min: 0.5 }}
                 >
-                  <ambientLight intensity={3} />
+                  <ambientLight intensity={5} />
                   <directionalLight position={[30, 60, 30]} intensity={3} />
                   <directionalLight position={[-30, 50, 20]} intensity={2.5} />
                   <directionalLight position={[0, 80, -30]} intensity={2} />
                   <pointLight position={[0, 50, 0]} intensity={1.5} />
-                  
+
                   <Grid
                     cellSize={2}
                     sectionSize={10}
@@ -446,11 +493,11 @@ export function MainPage() {
                     sectionColor={isDark ? '#c7d4e4' : '#a0b8d0'}
                     cellColor={isDark ? '#adb8c4' : '#ffffff'}
                   />
-                  
-                  <OrbitControls 
-                    enablePan={true} 
-                    enableZoom={true} 
-                    enableRotate={true} 
+
+                  <OrbitControls
+                    enablePan={true}
+                    enableZoom={true}
+                    enableRotate={true}
                     autoRotate={false}
                     maxDistance={300}
                     minDistance={30}
@@ -462,26 +509,42 @@ export function MainPage() {
                       RIGHT: controlMode === 'orbit' ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE,
                     }}
                   />
-                  
+
                   {selectedModel && (
                     <Suspense fallback={null}>
-                      <ComponentModel 
-                        key={`model-${modelKey}`} 
-                        url={selectedModel.url} 
-                        isActive={true} 
+                      <ComponentModel
+                        key={`model-${modelKey}`}
+                        url={selectedModel.url}
+                        isActive={true}
                         scale={selectedModel.scale}
+                        onTooltipChange={setTooltip}
                       />
                     </Suspense>
                   )}
-                  
+
                   <CameraReset position={cameraPosition} target={cameraTarget} />
-                  <Preload all />
                 </Canvas>
               </div>
-              
+
               <div className="absolute bottom-4 left-4 text-xs text-gray-500">
-                <p>{selectedModel ? '360° rotate • Zoom • Full inspection' : 'Select component'}</p>
+                <p>{selectedModel ? 'Hover over parts to learn more • 360° rotate • Zoom' : 'Select a component to begin'}</p>
               </div>
+
+              {/* Tooltip — positioned relative to viewer container */}
+              {tooltip && (
+                <div
+                  className="absolute z-50 pointer-events-none"
+                  style={{ left: tooltip.x + 12, top: tooltip.y }}
+                >
+                  <div className={`text-sm px-3 py-2 rounded-lg shadow-lg max-w-xs border ${
+                    isDark
+                      ? 'bg-gray-900 border-blue-500/40 text-white'
+                      : 'bg-white border-blue-300/40 text-gray-900'
+                  }`}>
+                    {tooltip.text}
+                  </div>
+                </div>
+              )}
             </div>
           </main>
         </div>

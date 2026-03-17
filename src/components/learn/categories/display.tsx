@@ -52,13 +52,6 @@ interface DisplayCategoryProps {
 export function DisplayCategory({ onModelSelect }: DisplayCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Preload all display models with Draco
-  useEffect(() => {
-    Object.values(displayModels).forEach(model => {
-      useGLTF.preload(model.url);
-    });
-  }, []);
-
   const handleModelClick = (modelId: string) => {
     const model = displayModels[modelId as keyof typeof displayModels];
     if (model) {

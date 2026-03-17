@@ -165,13 +165,6 @@ interface InputCategoryProps {
 export function InputCategory({ onModelSelect }: InputCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Preload all input models with Draco
-  useEffect(() => {
-    Object.values(inputModels).forEach(model => {
-      useGLTF.preload(model.url);
-    });
-  }, []);
-
   const handleModelClick = (modelId: string) => {
     const model = inputModels[modelId as keyof typeof inputModels];
     if (model) {

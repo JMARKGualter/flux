@@ -60,13 +60,6 @@ interface OutputCategoryProps {
 export function OutputCategory({ onModelSelect }: OutputCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Preload all output models
-  useEffect(() => {
-    Object.values(outputModels).forEach(model => {
-      useGLTF.preload(model.url);
-    });
-  }, []);
-
   const handleModelClick = (modelId: string) => {
     const model = outputModels[modelId as keyof typeof outputModels];
     if (model) {

@@ -44,13 +44,6 @@ interface BreadboardCategoryProps {
 export function BreadboardCategory({ onModelSelect }: BreadboardCategoryProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Preload all breadboard models with Draco
-  useEffect(() => {
-    Object.values(breadboardModels).forEach(model => {
-      useGLTF.preload(model.url);
-    });
-  }, []);
-
   const handleModelClick = (modelId: string) => {
     const model = breadboardModels[modelId as keyof typeof breadboardModels];
     if (model) {
