@@ -3,13 +3,11 @@
 import { Sparkles, Sun, Moon } from 'lucide-react';
 import { MouseEvent } from 'react';
 import Link from 'next/link';
+import { useTheme } from '@/contexts/ThemeContext';
 
-interface HeaderProps {
-  isDark: boolean;
-  toggleTheme: () => void;
-}
+export function Header() {
+  const { isDark, toggleTheme } = useTheme();
 
-export function Header({ isDark, toggleTheme }: HeaderProps) {
   const handleThemeToggle = (event: MouseEvent<HTMLButtonElement>) => {
     if (!document.startViewTransition) {
       toggleTheme();
@@ -75,6 +73,7 @@ export function Header({ isDark, toggleTheme }: HeaderProps) {
         <button
           onClick={handleThemeToggle}
           className={`relative p-2 rounded-lg ${isDark ? 'bg-blue-900/20 hover:bg-blue-900/30' : 'bg-blue-100 hover:bg-blue-200'} transition-all duration-300 overflow-visible`}
+          aria-label="Toggle theme"
         >
           <div className="relative z-10">
             {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-blue-600" />}

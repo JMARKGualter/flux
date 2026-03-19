@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, Suspense, useRef, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Sun, Moon, LayoutGrid, Orbit, Hand, RotateCw } from 'lucide-react';
+import { LayoutGrid, Orbit, Hand, RotateCw } from 'lucide-react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Center, useGLTF, Grid } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -19,6 +18,8 @@ import { meshTooltips } from '@/lib/constants/tooltips';
 import { ComponentGuideContainer } from './containers/ComponentGuideContainer';
 import { PartInfoDisplay } from './containers/PartInfoDisplay';
 import { TriviaDisplay } from './containers/TriviaDisplay';
+import { Header } from './Header';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Configure Draco loader globally
 useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
@@ -170,51 +171,6 @@ function ComponentModel({ url, isActive, scale = 20, onTooltipChange }: {
   );
 }
 
-// ==================== HEADER ====================
-function Header({ isDark, toggleTheme }: { isDark: boolean; toggleTheme: () => void }) {
-  const handleThemeToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (!document.startViewTransition) {
-      toggleTheme();
-      return;
-    }
-
-    const x = event.clientX;
-    const y = event.clientY;
-    const endRadius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
-    );
-
-    const transition = document.startViewTransition(() => toggleTheme());
-    transition.ready.then(() => {
-      document.documentElement.animate(
-        {
-          clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`],
-        },
-        { duration: 750, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' }
-      );
-    });
-  };
-
-  return (
-    <header className={`p-4 flex justify-between items-center border-b ${isDark ? 'border-blue-900/30' : 'border-blue-200/30'} backdrop-blur-sm`}>
-      <Link href="/" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
-        <ArrowLeft className="w-5 h-5" />
-        Back Home
-      </Link>
-      <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-        3D Component Viewer
-      </h1>
-      <button
-        onClick={handleThemeToggle}
-        className={`relative p-2 rounded-lg ${isDark ? 'bg-blue-900/20 hover:bg-blue-900/30' : 'bg-blue-100 hover:bg-blue-200'} transition-all duration-300`}
-      >
-        {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-blue-600" />}
-      </button>
-    </header>
-  );
-}
-
 // ==================== BACKGROUND ====================
 function AnimatedBackground({ isDark }: { isDark: boolean }) {
   return (
@@ -338,8 +294,7 @@ const getModelViewConfig = (url: string): { position: [number, number, number]; 
 
 // ==================== MAIN PAGE ====================
 export function MainPage() {
-  const [isDark, setIsDark] = useState(false);
-  const toggleTheme = () => setIsDark(!isDark);
+  const { isDark } = useTheme();
   const viewerRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
@@ -424,7 +379,7 @@ export function MainPage() {
         <AnimatedBackground isDark={isDark} />
 
         <div className="relative z-10 flex flex-col h-full">
-          <Header isDark={isDark} toggleTheme={toggleTheme} />
+          <Header />
 
           <main className="flex-1 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-4 p-4 min-h-0">
             {/* Category Sidebar */}
@@ -458,7 +413,7 @@ export function MainPage() {
                     height: '500px',
                   }}
                 >
-                  {/* FPS Counter - Now with isDark prop */}
+                  {/* FPS Counter */}
                   <div className="absolute top-4 right-4 z-30">
                     <FPSDisplay isDark={isDark} />
                   </div>
