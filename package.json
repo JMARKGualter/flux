@@ -15,6 +15,7 @@
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "stats.js": "^0.17.0",
     "three": "^0.183.2",
     "three-stdlib": "^2.36.1"
   },
@@ -23,6 +24,7 @@
     "@types/node": "^20.19.37",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/stats.js": "^0.17.4",
     "@types/three": "^0.183.1",
     "@types/webpack": "^5.28.5",
     "eslint": "^9",
