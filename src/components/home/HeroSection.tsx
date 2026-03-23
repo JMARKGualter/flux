@@ -69,7 +69,7 @@ export function HeroSection({ isDark }: HeroSectionProps) {
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Interactive 3D Logo</p>
             <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'} mt-1`}>Click and drag to rotate</p>
           </div>
-          <p className="absolute bottom-3 right-4 text-[10px] text-gray-500">MADE WITH LOVE FOR TRIOE COMMUNITY</p>
+          <p className="absolute bottom-3 right-4 text-[10px] text-gray-500">MADE WITH LOVE FOR THE TRIOE COMMUNITY</p>
         </div>
       </div>
     </div>
