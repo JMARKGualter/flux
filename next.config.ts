@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',  // This enables static HTML export
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: [],
+    unoptimized: true, // Required for static export
   },
-  // No webpack config needed for public folder assets
 };
 
 module.exports = nextConfig;
