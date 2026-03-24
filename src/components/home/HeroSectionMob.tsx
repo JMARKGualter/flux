@@ -11,7 +11,7 @@ function LogoModel() {
   const { scene } = useGLTF(logo2Url);
   return (
     <Center>
-      <primitive object={scene} scale={0.13} /> {/* Reduced from 0.18 to 0.13 - slightly zoomed out */}
+      <primitive object={scene} scale={0.14} /> {/* Slightly increased for mobile */}
     </Center>
   );
 }
@@ -118,10 +118,16 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
             </div>
           </div>
 
-          {/* 3D Model */}
+          {/* 3D Model with Zoom Restrictions */}
           <div className="mt-4">
             <div className={`relative bg-gradient-to-br ${isDark ? 'from-blue-950/50 to-blue-900/30' : 'from-blue-100/50 to-blue-50/30'} rounded-2xl border ${isDark ? 'border-blue-500/30' : 'border-blue-300/30'} p-3 backdrop-blur-sm`}>
-              <div className="w-full h-[220px] sm:h-[260px] relative">
+              {/* Large Centered Background Text */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <span className={`text-8xl sm:text-15xl font-black select-none opacity-30 ${isDark ? 'text-blue-800' : 'text-blue-300'}`}>
+                  TRIOE
+                </span>
+              </div>
+              <div className="w-full h-[220px] sm:h-[260px] relative z-10">
                 <Canvas 
                   camera={{ position: [0, 0, 1.5], fov: 14 }} 
                   gl={{ antialias: true }}
@@ -132,18 +138,27 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
                   <directionalLight position={[5, 5, 5]} intensity={1.2} />
                   <directionalLight position={[-5, -5, -2]} intensity={0.4} />
                   <pointLight position={[0, 0, 2]} intensity={0.8} />
-                  <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} autoRotate={true} autoRotateSpeed={-7.5} />
+                  <OrbitControls 
+                    enablePan={true} 
+                    enableZoom={true} 
+                    enableRotate={true} 
+                    autoRotate={true} 
+                    autoRotateSpeed={-7.5}
+                    minDistance={1.2}    // Minimum zoom distance for mobile
+                    maxDistance={3.5}    // Maximum zoom distance for mobile
+                    zoomSpeed={0.8}
+                  />
                   <Suspense fallback={null}>
                     <LogoModel />
                     <Preload all />
                   </Suspense>
                 </Canvas>
               </div>
-              <div className="mt-2 text-center">
+              <div className="relative z-10 mt-2 text-center">
                 <p className={`text-[10px] sm:text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Interactive 3D Logo</p>
                 <p className={`text-[8px] sm:text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-500'} mt-0.5`}>Click and drag to rotate</p>
               </div>
-              <p className="absolute bottom-1 right-1 text-[8px] text-gray-500">MADE WITH LOVE FOR THE TRIOE COMMUNITY</p>
+              <p className="absolute bottom-1 right-1 text-[8px] text-gray-500 z-10">MADE WITH LOVE FOR THE TRIOE COMMUNITY</p>
             </div>
           </div>
         </div>

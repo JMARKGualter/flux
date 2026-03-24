@@ -11,7 +11,7 @@ function LogoModel() {
   const { scene } = useGLTF(logo2Url);
   return (
     <Center>
-      <primitive object={scene} scale={0.15} /> {/* Increased from 0.12 to 0.15 */}
+      <primitive object={scene} scale={0.18} /> {/* Increased from 0.15 to 0.18 - more zoom */}
     </Center>
   );
 }
@@ -57,7 +57,6 @@ export function HeroSection({ isDark }: HeroSectionProps) {
             
             {/* Buttons Container - Fixed widths */}
             <div className="flex flex-col items-center lg:items-start gap-4">
-              {/* Start Learning Button */}
               <Link
                 href="/learn"
                 className={`flex items-center justify-center gap-2 w-[260px] px-6 py-3 rounded-lg transition-all shadow-lg ${
@@ -70,7 +69,6 @@ export function HeroSection({ isDark }: HeroSectionProps) {
                 <Zap className="w-5 h-5" />
               </Link>
 
-              {/* VR Section */}
               <div>
                 <p className={`text-sm mb-2 text-center lg:text-left ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   Have a VR HEADSET? Click below
@@ -96,10 +94,16 @@ export function HeroSection({ isDark }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* Right Column - 3D Model */}
+          {/* Right Column - 3D Model with Zoom Restrictions */}
           <div className="flex-1 mt-8 lg:mt-0">
             <div className={`relative bg-gradient-to-br ${isDark ? 'from-blue-950/50 to-blue-900/30' : 'from-blue-100/50 to-blue-50/30'} rounded-2xl border ${isDark ? 'border-blue-500/30' : 'border-blue-300/30'} p-4 sm:p-6 backdrop-blur-sm`}>
-              <div className="w-full h-[250px] sm:h-[300px] lg:h-[350px] relative">
+              {/* Large Centered Background Text */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <span className={`text-6xl sm:text-8xl md:text-9xl lg:text-[10rem] font-black select-none opacity-30 ${isDark ? 'text-blue-800' : 'text-blue-300'}`}>
+                  TRIOE
+                </span>
+              </div>
+              <div className="w-full h-[250px] sm:h-[300px] lg:h-[350px] relative z-10">
                 <Canvas 
                   camera={{ position: [0, 0, 1.5], fov: 14 }} 
                   gl={{ antialias: true }}
@@ -110,18 +114,27 @@ export function HeroSection({ isDark }: HeroSectionProps) {
                   <directionalLight position={[5, 5, 5]} intensity={1.2} />
                   <directionalLight position={[-5, -5, -2]} intensity={0.4} />
                   <pointLight position={[0, 0, 2]} intensity={0.8} />
-                  <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} autoRotate={true} autoRotateSpeed={-7.5} />
+                  <OrbitControls 
+                    enablePan={true} 
+                    enableZoom={true} 
+                    enableRotate={true} 
+                    autoRotate={true} 
+                    autoRotateSpeed={-7.5}
+                    minDistance={1}      // Minimum zoom distance (prevents zooming too close)
+                    maxDistance={3}      // Maximum zoom distance (prevents zooming too far)
+                    zoomSpeed={0.8}      // Slower zoom speed for smoother control
+                  />
                   <Suspense fallback={null}>
                     <LogoModel />
                     <Preload all />
                   </Suspense>
                 </Canvas>
               </div>
-              <div className="mt-3 text-center">
+              <div className="relative z-10 mt-3 text-center">
                 <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Interactive 3D Logo</p>
                 <p className={`text-[10px] sm:text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'} mt-1`}>Click and drag to rotate</p>
               </div>
-              <p className="absolute bottom-2 right-2 text-[8px] sm:text-[10px] text-gray-500">MADE WITH LOVE FOR THE TRIOE COMMUNITY</p>
+              <p className="absolute bottom-2 right-2 text-[8px] sm:text-[10px] text-gray-500 z-10">MADE WITH LOVE FOR THE TRIOE COMMUNITY</p>
             </div>
           </div>
         </div>
