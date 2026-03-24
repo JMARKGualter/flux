@@ -255,39 +255,51 @@ function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position
   };
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-      {categories.map((category) => {
-        const CategoryComponent = category.component;
-        return (
-          <div key={category.key} className="relative">
-            <button
-              onClick={() => setOpenCategory(openCategory === category.key ? null : category.key)}
-              className={`w-full p-2 sm:p-3 rounded-lg text-center text-sm sm:text-base font-medium transition-all ${
-                isDark 
-                  ? 'bg-blue-900/30 hover:bg-blue-800/40 text-blue-300 border border-blue-700/50'
-                  : 'bg-blue-100/80 hover:bg-blue-200/80 text-blue-800 border border-blue-300/50'
-              }`}
-            >
-              {category.name}
-            </button>
-            
-            {openCategory === category.key && (
-              <div className={`absolute left-0 right-0 top-full mt-1 z-50 rounded-lg shadow-xl border overflow-hidden ${
-                isDark 
-                  ? 'bg-gray-900 border-blue-700/50'
-                  : 'bg-white border-blue-300/50'
-              }`}>
-                <div className="max-h-64 overflow-y-auto p-2">
-                  <CategoryComponent onModelSelect={handleCategorySelect} />
+    <div className="space-y-3">
+      {/* Mobile/Tablet: 3x3 grid */}
+      <div className="lg:hidden">
+        <div className="grid grid-cols-3 gap-2">
+          {categories.map((category) => (
+            <div key={category.key} className="relative">
+              <button
+                onClick={() => setOpenCategory(openCategory === category.key ? null : category.key)}
+                className={`w-full p-2 sm:p-3 rounded-lg text-center text-xs sm:text-sm font-medium transition-all ${
+                  isDark 
+                    ? 'bg-blue-900/30 hover:bg-blue-800/40 text-blue-300 border border-blue-700/50'
+                    : 'bg-blue-100/80 hover:bg-blue-200/80 text-blue-800 border border-blue-300/50'
+                }`}
+              >
+                {category.name}
+              </button>
+              
+              {openCategory === category.key && (
+                <div className={`absolute left-0 right-0 top-full mt-1 z-50 rounded-lg shadow-xl border overflow-hidden ${
+                  isDark 
+                    ? 'bg-gray-900 border-blue-700/50'
+                    : 'bg-white border-blue-300/50'
+                }`}>
+                  <div className="max-h-64 overflow-y-auto p-2">
+                    <category.component onModelSelect={handleCategorySelect} />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: Original vertical list */}
+      <div className="hidden lg:block space-y-1">
+        {categories.map((category) => (
+          <div key={category.key} className="w-full">
+            <category.component onModelSelect={handleCategorySelect} />
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
+
 // ==================== VIEW CONFIG ====================
 const getModelViewConfig = (url: string): { position: [number, number, number]; target: [number, number, number] } => {
   if (url.includes('Breadboard63R10C')) return { position: [40, 60, 90], target: [0, 12, 0] };
@@ -443,7 +455,7 @@ export function MainPage() {
             {/* Mobile/Tablet Layout - Stacked */}
             <div className="lg:hidden space-y-4">
               {/* Category Grid - 3x3 on mobile */}
-              <div className="rounded-lg border p-3 sm:p-4 backdrop-blur-sm bg-opacity-30">
+              <div className={`rounded-lg border p-3 sm:p-4 backdrop-blur-sm ${isDark ? 'bg-blue-950/30 border-blue-900/30' : 'bg-white/50 border-blue-200/30'}`}>
                 <h2 className="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2">
                   <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                   <span>Categories</span>
@@ -454,7 +466,7 @@ export function MainPage() {
               {/* 3D Viewer */}
               <div
                 ref={viewerRef}
-                className={`rounded-lg border backdrop-blur-sm relative`}
+                className={`rounded-lg border backdrop-blur-sm relative ${isDark ? 'bg-black/20 border-blue-900/30' : 'bg-white/20 border-blue-200/30'}`}
                 style={{
                   width: '100%',
                   height: 'clamp(300px, 50vh, 450px)',
@@ -556,7 +568,7 @@ export function MainPage() {
               </div>
 
               {/* Component Guide */}
-              <div className="rounded-lg border backdrop-blur-sm bg-opacity-30 overflow-hidden">
+              <div className="rounded-lg border backdrop-blur-sm overflow-hidden">
                 <ComponentGuideContainer 
                   isDark={isDark} 
                   selectedModel={selectedModel} 
@@ -566,7 +578,7 @@ export function MainPage() {
 
               {/* Two containers - Equal height split */}
               <div className="grid grid-cols-1 gap-4">
-                <div className="rounded-lg border backdrop-blur-sm bg-opacity-30 overflow-hidden">
+                <div className="rounded-lg border backdrop-blur-sm overflow-hidden">
                   <PartInfoDisplay 
                     isDark={isDark} 
                     selectedModel={selectedModel} 
@@ -574,7 +586,7 @@ export function MainPage() {
                   />
                 </div>
 
-                <div className="rounded-lg border backdrop-blur-sm bg-opacity-30 overflow-hidden">
+                <div className="rounded-lg border backdrop-blur-sm overflow-hidden">
                   <TriviaDisplay 
                     isDark={isDark} 
                     selectedModel={selectedModel} 
@@ -586,7 +598,7 @@ export function MainPage() {
             {/* Desktop Layout - Original Side-by-Side */}
             <div className="hidden lg:grid lg:grid-cols-[250px_1fr] gap-4 h-full min-h-0">
               {/* Category Sidebar */}
-              <aside className={`rounded-lg border backdrop-blur-sm p-4 h-full overflow-y-auto`}>
+              <aside className={`rounded-lg border backdrop-blur-sm p-4 h-full overflow-y-auto ${isDark ? 'bg-blue-950/30 border-blue-900/30' : 'bg-white/50 border-blue-200/30'}`}>
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <LayoutGrid className="w-5 h-5 text-blue-400" />
                   Categories
@@ -608,7 +620,7 @@ export function MainPage() {
                 <div className="flex flex-col gap-4 h-full min-h-0">
                   <div
                     ref={viewerRef}
-                    className={`rounded-lg border backdrop-blur-sm relative flex-shrink-0`}
+                    className={`rounded-lg border backdrop-blur-sm relative flex-shrink-0 ${isDark ? 'bg-black/20 border-blue-900/30' : 'bg-white/20 border-blue-200/30'}`}
                     style={{ width: '100%', height: '500px' }}
                   >
                     <div className="absolute top-4 right-4 z-30">
