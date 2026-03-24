@@ -14,7 +14,7 @@ export function Home() {
       <AnimatedBackground isDark={isDark} />
       <div className="relative z-10">
         <Header />
-        <main className="container mx-auto px-6 py-12">
+        <main className="container mx-auto px-4 sm:px-6 lg:px-6 py-6 sm:py-8 lg:py-12">
           <HeroSection isDark={isDark} />
           <FeaturesSection isDark={isDark} />
         </main>
