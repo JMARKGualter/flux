@@ -11,7 +11,7 @@ function LogoModel() {
   const { scene } = useGLTF(logo2Url);
   return (
     <Center>
-      <primitive object={scene} scale={0.18} /> {/* Increased from 0.15 to 0.18 - more zoom */}
+      <primitive object={scene} scale={0.15} /> {/* Increased from 0.15 to 0.18 - more zoom */}
     </Center>
   );
 }

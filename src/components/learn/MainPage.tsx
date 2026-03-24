@@ -380,7 +380,7 @@ export function MainPage() {
         <div className="relative z-10 flex flex-col h-full">
           <Header />
 
-          <main className="flex-1 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-4 p-4 min-h-0">
+          <main className="flex-1 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-4 p-4 min-h-0 min-w-0">
             {/* Category Sidebar */}
             <aside className={`rounded-lg border ${isDark ? 'bg-blue-950/30 border-blue-900/30' : 'bg-white/50 border-blue-200/30'} backdrop-blur-sm p-4 h-full overflow-y-auto`}>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -400,7 +400,7 @@ export function MainPage() {
             </aside>
 
             {/* Right side container - Two columns */}
-            <div className="grid grid-cols-[1fr_320px] gap-4 h-full min-h-0">
+            <div className="grid grid-cols-[1fr_minmax(260px,320px)] gap-4 h-full min-h-0 min-w-0 overflow-hidden">
               {/* Left column - 3D Viewer and Component Guide */}
               <div className="flex flex-col gap-4 h-full min-h-0">
                 {/* 3D Viewer */}

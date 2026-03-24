@@ -48,12 +48,9 @@ body {
   animation: fade-in 0.15s ease-out;
 }
 
-/* Prevent scrolling on the entire page */
-html, body {
-  overflow: hidden;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+/* Allow grid and flex children to shrink below content size */
+*, *::before, *::after {
+  min-width: 0;
 }
 
 /* Prevent browser zoom with Ctrl+Scroll */
