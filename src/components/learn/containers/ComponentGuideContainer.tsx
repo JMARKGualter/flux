@@ -53,9 +53,6 @@ export function ComponentGuideContainer({ isDark, selectedModel, tooltip }: Comp
         <p className={`text-sm text-center ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
           Guide coming soon for this component
         </p>
-        <p className={`text-xs text-center mt-2 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
-          [Your colleague can add a guide for {selectedModel.url.split('/').pop()?.replace('.glb', '')}]
-        </p>
       </div>
     );
   }
@@ -135,11 +132,6 @@ export function ComponentGuideContainer({ isDark, selectedModel, tooltip }: Comp
             </div>
           </div>
         )}
-      </div>
-
-      {/* Editable note for colleague */}
-      <div className={`mt-4 pt-2 text-center text-[10px] italic ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-        [Your colleague can edit this guide in src/lib/constants/componentGuides.ts]
       </div>
     </div>
   );

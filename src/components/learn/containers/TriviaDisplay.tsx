@@ -70,9 +70,6 @@ export function TriviaDisplay({ isDark, selectedModel }: TriviaDisplayProps) {
         <p className={`text-sm text-center ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
           No trivia available for this component yet
         </p>
-        <p className={`text-xs text-center mt-2 ${isDark ? 'text-gray-600' : 'text-gray-500'}`}>
-          [Your colleague can add trivia in src/lib/constants/trivia.ts]
-        </p>
       </div>
     );
   }
@@ -169,11 +166,6 @@ export function TriviaDisplay({ isDark, selectedModel }: TriviaDisplayProps) {
           </button>
         </div>
       )}
-
-      {/* Editable note for colleague */}
-      <div className={`mt-4 pt-2 text-center text-[10px] italic ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-        [Your colleague can edit/add trivia in src/lib/constants/trivia.ts]
-      </div>
     </div>
   );
 }
