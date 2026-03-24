@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense, useRef, useEffect, useCallback } from 'react';
-import { LayoutGrid, Orbit, Hand, RotateCw } from 'lucide-react';
+import { LayoutGrid, Orbit, Hand, RotateCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Center, useGLTF, Grid } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
@@ -234,7 +234,7 @@ function CameraControlPanel({
   );
 }
 
-// ==================== CATEGORY GRID COMPONENT ====================
+// ==================== CATEGORY GRID COMPONENT WITH DROPDOWN ====================
 function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position: [number, number, number], target: [number, number, number], scale?: number) => void }) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const { isDark } = useTheme();
@@ -255,21 +255,31 @@ function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position
     setOpenCategory(null); // Close dropdown after selection
   };
 
+  const toggleCategory = (key: string) => {
+    setOpenCategory(openCategory === key ? null : key);
+  };
+
   return (
     <div className="grid grid-cols-3 gap-2">
       {categories.map((category) => (
         <div key={category.key} className="relative">
           <button
-            onClick={() => setOpenCategory(openCategory === category.key ? null : category.key)}
-            className={`w-full p-2 rounded-lg text-center text-xs font-medium transition-all ${
+            onClick={() => toggleCategory(category.key)}
+            className={`w-full p-2 rounded-lg text-center text-xs font-medium transition-all flex items-center justify-between gap-1 ${
               isDark 
                 ? 'bg-blue-900/30 hover:bg-blue-800/40 text-blue-300 border border-blue-700/50'
                 : 'bg-blue-100/80 hover:bg-blue-200/80 text-blue-800 border border-blue-300/50'
             }`}
           >
-            {category.name}
+            <span className="flex-1">{category.name}</span>
+            {openCategory === category.key ? (
+              <ChevronUp className="w-3 h-3 flex-shrink-0" />
+            ) : (
+              <ChevronDown className="w-3 h-3 flex-shrink-0" />
+            )}
           </button>
           
+          {/* Dropdown Menu - Expands below without affecting other folders */}
           {openCategory === category.key && (
             <div className={`absolute left-0 right-0 top-full mt-1 z-50 rounded-lg shadow-xl border overflow-hidden ${
               isDark 
@@ -419,7 +429,7 @@ export function MainPageMob() {
 
           <main className="flex-1 container mx-auto px-3 py-4">
             <div className="space-y-4">
-              {/* Category Grid - 3x3 */}
+              {/* Category Grid - 3x3 with dropdown icons */}
               <div className={`rounded-lg border p-3 backdrop-blur-sm ${isDark ? 'bg-blue-950/30 border-blue-900/30' : 'bg-white/50 border-blue-200/30'}`}>
                 <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
                   <LayoutGrid className="w-4 h-4 text-blue-400" />
