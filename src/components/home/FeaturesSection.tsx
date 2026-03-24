@@ -27,16 +27,20 @@ const features = [
 
 export function FeaturesSection({ isDark }: FeaturesSectionProps) {
   return (
-    <div className="mt-12 sm:mt-16 md:mt-20 lg:mt-24 xl:mt-32 mb-8 sm:mb-12 md:mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-      {features.map((feature, index) => (
-        <FeatureCard
-          key={index}
-          icon={feature.icon}
-          title={feature.title}
-          description={feature.description}
-          isDark={isDark}
-        />
-      ))}
+    <div className="w-full py-12 sm:py-16 md:py-20">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {features.map((feature, index) => (
+            <FeatureCard
+              key={index}
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+              isDark={isDark}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

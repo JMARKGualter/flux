@@ -31,7 +31,7 @@ export function AnimatedBackground({ isDark }: AnimatedBackgroundProps) {
         <div className={`absolute bottom-1/3 left-2/3 w-2 h-2 ${isDark ? 'bg-cyan-400/50' : 'bg-cyan-300/50'} rounded-full animate-ping`} style={{ animationDuration: '5s', animationDelay: '2s' }} />
       </div>
 
-      {/* Circuit Traces Animation - Separate layer that covers full height */}
+      {/* Circuit Traces Animation */}
       <CircuitTraces isDark={isDark} />
     </>
   );

@@ -10,14 +10,14 @@ export function Home() {
   const { isDark } = useTheme();
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-black text-white' : 'bg-blue-50 text-gray-900'} relative overflow-x-hidden overflow-y-auto`}>
+    <div className={`w-full ${isDark ? 'bg-black text-white' : 'bg-blue-50 text-gray-900'}`}>
       <AnimatedBackground isDark={isDark} />
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10">
         <Header />
-        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-6 py-6 sm:py-8 lg:py-12">
-          <HeroSection isDark={isDark} />
-          <FeaturesSection isDark={isDark} />
-        </main>
+        <HeroSection isDark={isDark} />
+        <FeaturesSection isDark={isDark} />
+        {/* Extra space for smooth scrolling */}
+        <div className="h-16 sm:h-20"></div>
       </div>
     </div>
   );

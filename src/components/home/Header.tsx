@@ -43,20 +43,20 @@ export function Header() {
   };
 
   return (
-    <header className={`p-3 sm:p-4 md:p-5 lg:p-6 flex justify-between items-center border-b ${isDark ? 'border-blue-900/30' : 'border-blue-200/30'} backdrop-blur-sm`}>
+    <header className={`p-4 sm:p-6 flex justify-between items-center border-b ${isDark ? 'border-blue-900/30' : 'border-blue-200/30'} backdrop-blur-sm`}>
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="relative">
-          <Sparkles className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+          <Sparkles className={`w-6 h-6 sm:w-8 sm:h-8 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
           <div className="absolute inset-0 animate-pulse">
-            <Sparkles className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 ${isDark ? 'text-blue-400/50' : 'text-blue-500/50'}`} />
+            <Sparkles className={`w-6 h-6 sm:w-8 sm:h-8 ${isDark ? 'text-blue-400/50' : 'text-blue-500/50'}`} />
           </div>
         </div>
-        <span className="text-lg sm:text-xl md:text-2xl font-semibold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+        <span className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
           FluxLabs
         </span>
       </div>
       <div className="flex items-center gap-3 sm:gap-4">
-        <nav className="flex gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+        <nav className="flex gap-4 sm:gap-6">
           <Link 
             href="/" 
             className={`text-sm sm:text-base ${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
