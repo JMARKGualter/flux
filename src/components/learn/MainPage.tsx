@@ -235,8 +235,9 @@ function CameraControlPanel({
 }
 
 // ==================== CATEGORY GRID COMPONENT ====================
-function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position: [number, number, number], target: [number, number, number], scale: number) => void }) {
+function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position: [number, number, number], target: [number, number, number], scale?: number) => void }) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const { isDark } = useTheme();
 
   const categories = [
     { name: 'Breadboard', component: BreadboardCategory, key: 'breadboard' },
@@ -249,8 +250,12 @@ function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position
     { name: 'Power Control', component: PowerControlCategory, key: 'powercontrol' },
   ];
 
+  const handleCategorySelect = (url: string, position: [number, number, number], target: [number, number, number], scale: number = 20) => {
+    onModelSelect(url, position, target, scale);
+  };
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
       {categories.map((category) => {
         const CategoryComponent = category.component;
         return (
@@ -273,7 +278,7 @@ function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position
                   : 'bg-white border-blue-300/50'
               }`}>
                 <div className="max-h-64 overflow-y-auto p-2">
-                  <CategoryComponent onModelSelect={onModelSelect} />
+                  <CategoryComponent onModelSelect={handleCategorySelect} />
                 </div>
               </div>
             )}
@@ -283,7 +288,6 @@ function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position
     </div>
   );
 }
-
 // ==================== VIEW CONFIG ====================
 const getModelViewConfig = (url: string): { position: [number, number, number]; target: [number, number, number] } => {
   if (url.includes('Breadboard63R10C')) return { position: [40, 60, 90], target: [0, 12, 0] };
