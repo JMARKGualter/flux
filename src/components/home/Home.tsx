@@ -10,7 +10,7 @@ export function Home() {
   const { isDark } = useTheme();
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-black text-white' : 'bg-blue-50 text-gray-900'} relative overflow-hidden`}>
+    <div className={`min-h-screen ${isDark ? 'bg-black text-white' : 'bg-blue-50 text-gray-900'} relative overflow-x-hidden overflow-y-auto`}>
       <AnimatedBackground isDark={isDark} />
       <div className="relative z-10">
         <Header />

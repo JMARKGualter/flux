@@ -63,7 +63,7 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
   };
 
   return (
-    <div className="flex flex-col gap-8 lg:gap-12">
+    <div className="flex flex-col gap-8">
       {/* Text Content */}
       <div className="text-center px-2">
         <h1 className={`text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r ${isDark ? 'from-white via-blue-200 to-blue-400' : 'from-black via-blue-900 to-blue-600'} bg-clip-text text-transparent`}>
