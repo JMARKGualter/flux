@@ -16,8 +16,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FluxLabs - 3D Hardware Learning Platform",
+  title: "3D ELECTRONICS WORKBENCH",
   description: "Explore hardware components in 3D with FluxLabs",
+  icons: {
+    icon: [
+      { url: "/images/favicon.png", sizes: "any", type: "image/png" },
+      { url: "/images/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/images/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+  },
 };
 
 // Preload models (this runs once)
