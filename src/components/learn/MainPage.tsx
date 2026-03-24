@@ -77,8 +77,8 @@ function FPSDisplay({ isDark }: { isDark: boolean }) {
 
   return (
     <div className={`
-      px-2.5 py-1 rounded-md backdrop-blur-sm border
-      font-mono text-xs font-bold ${styles.container} ${styles.text}
+      px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md backdrop-blur-sm border
+      font-mono text-[10px] sm:text-xs font-bold ${styles.container} ${styles.text}
     `}>
       {fps} FPS
     </div>
@@ -195,41 +195,41 @@ function CameraControlPanel({
   onFrameView: () => void;
 }) {
   return (
-    <div className={`absolute top-4 left-4 z-20 flex flex-col gap-1 rounded-lg border ${isDark ? 'bg-blue-950/40 border-blue-900/30' : 'bg-white/80 border-blue-200/30'} backdrop-blur-sm p-1`}>
+    <div className={`absolute top-2 left-2 sm:top-4 sm:left-4 z-20 flex flex-row sm:flex-col gap-1 rounded-lg border ${isDark ? 'bg-blue-950/40 border-blue-900/30' : 'bg-white/80 border-blue-200/30'} backdrop-blur-sm p-1`}>
       <button
         onClick={() => setControlMode('orbit')}
-        className={`p-2 rounded-md transition-all duration-200 ${
+        className={`p-1.5 sm:p-2 rounded-md transition-all duration-200 ${
           controlMode === 'orbit'
             ? isDark ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
             : isDark ? 'hover:bg-blue-900/30' : 'hover:bg-blue-100'
         }`}
         title="Orbit Mode (Rotate)"
       >
-        <Orbit className="w-4 h-4" />
+        <Orbit className="w-3 h-3 sm:w-4 sm:h-4" />
       </button>
 
       <button
         onClick={() => setControlMode('pan')}
-        className={`p-2 rounded-md transition-all duration-200 ${
+        className={`p-1.5 sm:p-2 rounded-md transition-all duration-200 ${
           controlMode === 'pan'
             ? isDark ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
             : isDark ? 'hover:bg-blue-900/30' : 'hover:bg-blue-100'
         }`}
         title="Pan Mode (Move)"
       >
-        <Hand className="w-4 h-4" />
+        <Hand className="w-3 h-3 sm:w-4 sm:h-4" />
       </button>
 
-      <div className={`w-full h-px ${isDark ? 'bg-blue-900/30' : 'bg-blue-200/30'} my-1`} />
+      <div className={`w-px h-4 sm:w-auto sm:h-px ${isDark ? 'bg-blue-900/30' : 'bg-blue-200/30'} my-0 sm:my-1 mx-1 sm:mx-0`} />
 
       <button
         onClick={onFrameView}
-        className={`p-2 rounded-md transition-all duration-200 ${
+        className={`p-1.5 sm:p-2 rounded-md transition-all duration-200 ${
           isDark ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'
         }`}
         title="Reset View"
       >
-        <RotateCw className="w-4 h-4" />
+        <RotateCw className="w-3 h-3 sm:w-4 sm:h-4" />
       </button>
     </div>
   );
@@ -363,6 +363,14 @@ export function MainPage() {
           -ms-content-zooming: none;
           touch-action: pan-y pan-x;
         }
+        
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+          .container {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+          }
+        }
       `}</style>
 
       <div 
@@ -378,17 +386,17 @@ export function MainPage() {
       >
         <AnimatedBackground isDark={isDark} />
 
-        <div className="relative z-10 flex flex-col h-full">
+        <div className="relative z-10 flex flex-col h-full overflow-hidden">
           <Header />
 
-          <main className="flex-1 grid grid-cols-1 md:grid-cols-[250px_1fr] gap-4 p-4 min-h-0">
-            {/* Category Sidebar */}
-            <aside className={`rounded-lg border ${isDark ? 'bg-blue-950/30 border-blue-900/30' : 'bg-white/50 border-blue-200/30'} backdrop-blur-sm p-4 h-full overflow-y-auto`}>
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 text-blue-400" />
-                Categories
+          <main className="flex-1 flex flex-col lg:grid lg:grid-cols-[250px_1fr] gap-3 p-2 sm:p-3 lg:p-4 min-h-0 overflow-hidden">
+            {/* Category Sidebar - Horizontal scroll on mobile */}
+            <aside className={`rounded-lg border ${isDark ? 'bg-blue-950/30 border-blue-900/30' : 'bg-white/50 border-blue-200/30'} backdrop-blur-sm p-2 sm:p-3 lg:p-4 overflow-x-auto lg:overflow-y-auto lg:h-full`}>
+              <h2 className="text-sm sm:text-base lg:text-xl font-semibold mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
+                <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 flex-shrink-0" />
+                <span>Categories</span>
               </h2>
-              <ul className="space-y-1">
+              <ul className="flex lg:flex-col gap-1.5 sm:gap-2 lg:gap-1 whitespace-nowrap lg:whitespace-normal">
                 <BreadboardCategory onModelSelect={handleModelSelect} />
                 <DisplayCategory onModelSelect={handleModelSelect} />
                 <GeneralCategory onModelSelect={handleModelSelect} />
@@ -400,21 +408,21 @@ export function MainPage() {
               </ul>
             </aside>
 
-            {/* Right side container - Two columns */}
-            <div className="grid grid-cols-[1fr_320px] gap-4 h-full min-h-0">
+            {/* Right side container - Stack on mobile, side by side on desktop */}
+            <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] gap-2 sm:gap-3 lg:gap-4 h-full min-h-0 overflow-hidden">
               {/* Left column - 3D Viewer and Component Guide */}
-              <div className="flex flex-col gap-4 h-full min-h-0">
+              <div className="flex flex-col gap-2 sm:gap-3 lg:gap-4 h-full min-h-0 overflow-hidden">
                 {/* 3D Viewer */}
                 <div
                   ref={viewerRef}
                   className={`rounded-lg border ${isDark ? 'bg-black/20 border-blue-900/30' : 'bg-white/20 border-blue-200/30'} backdrop-blur-sm relative flex-shrink-0`}
                   style={{
                     width: '100%',
-                    height: '500px',
+                    height: 'clamp(280px, 45vh, 500px)',
                   }}
                 >
                   {/* FPS Counter */}
-                  <div className="absolute top-4 right-4 z-30">
+                  <div className="absolute top-1 right-1 sm:top-2 sm:right-2 lg:top-4 lg:right-4 z-30">
                     <FPSDisplay isDark={isDark} />
                   </div>
 
@@ -427,7 +435,7 @@ export function MainPage() {
 
                   {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 backdrop-blur-sm">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-blue-500"></div>
                     </div>
                   )}
 
@@ -489,17 +497,17 @@ export function MainPage() {
                     </Canvas>
                   </div>
 
-                  <div className="absolute bottom-4 left-4 text-xs text-gray-500">
-                    <p>{selectedModel ? 'Hover over parts to learn more • 360° rotate • Zoom' : 'Select a component to begin'}</p>
+                  <div className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 lg:bottom-4 lg:left-4 text-[8px] sm:text-[10px] lg:text-xs text-gray-500">
+                    <p>{selectedModel ? 'Hover parts • 360° rotate • Zoom' : 'Select a component'}</p>
                   </div>
 
                   {/* Tooltip */}
                   {tooltip && (
                     <div
                       className="absolute z-50 pointer-events-none"
-                      style={{ left: tooltip.x + 12, top: tooltip.y }}
+                      style={{ left: tooltip.x + 8, top: tooltip.y }}
                     >
-                      <div className={`text-sm px-3 py-2 rounded-lg shadow-lg max-w-xs border ${
+                      <div className={`text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-lg shadow-lg max-w-[200px] sm:max-w-xs border ${
                         isDark
                           ? 'bg-gray-900 border-blue-500/40 text-white'
                           : 'bg-white border-blue-300/40 text-gray-900'
@@ -511,16 +519,17 @@ export function MainPage() {
                 </div>
 
                 {/* Component Guide Container */}
-                <ComponentGuideContainer 
-                  isDark={isDark} 
-                  selectedModel={selectedModel} 
-                  tooltip={tooltip} 
-                />
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  <ComponentGuideContainer 
+                    isDark={isDark} 
+                    selectedModel={selectedModel} 
+                    tooltip={tooltip} 
+                  />
+                </div>
               </div>
 
-              {/* Right column - Part Info (top) and Trivia (bottom) */}
-              <div className="flex flex-col gap-4 h-full min-h-0">
-                {/* Part Info Display */}
+              {/* Right column - Part Info and Trivia */}
+              <div className="flex flex-col gap-2 sm:gap-3 lg:gap-4 h-full min-h-0 overflow-hidden">
                 <div className="flex-1 min-h-0 overflow-y-auto">
                   <PartInfoDisplay 
                     isDark={isDark} 
@@ -529,7 +538,6 @@ export function MainPage() {
                   />
                 </div>
 
-                {/* Trivia Display */}
                 <div className="flex-1 min-h-0 overflow-y-auto">
                   <TriviaDisplay 
                     isDark={isDark} 

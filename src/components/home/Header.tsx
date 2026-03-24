@@ -1,12 +1,23 @@
 'use client';
 
 import { Sparkles, Sun, Moon } from 'lucide-react';
-import { MouseEvent } from 'react';
+import { MouseEvent, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export function Header() {
   const { isDark, toggleTheme } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleThemeToggle = (event: MouseEvent<HTMLButtonElement>) => {
     if (!document.startViewTransition) {
@@ -43,43 +54,81 @@ export function Header() {
   };
 
   return (
-    <header className={`p-6 flex justify-between items-center border-b ${isDark ? 'border-blue-900/30' : 'border-blue-200/30'} backdrop-blur-sm`}>
-      <div className="flex items-center gap-3">
+    <header className={`p-4 sm:p-6 flex flex-wrap items-center justify-between border-b ${isDark ? 'border-blue-900/30' : 'border-blue-200/30'} backdrop-blur-sm`}>
+      <div className="flex items-center gap-2 sm:gap-3">
         <div className="relative">
-          <Sparkles className={`w-8 h-8 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
+          <Sparkles className={`w-6 h-6 sm:w-8 sm:h-8 ${isDark ? 'text-blue-500' : 'text-blue-600'}`} />
           <div className="absolute inset-0 animate-pulse">
-            <Sparkles className={`w-8 h-8 ${isDark ? 'text-blue-400/50' : 'text-blue-500/50'}`} />
+            <Sparkles className={`w-6 h-6 sm:w-8 sm:h-8 ${isDark ? 'text-blue-400/50' : 'text-blue-500/50'}`} />
           </div>
         </div>
-        <span className="text-2xl font-semibold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+        <span className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
           FluxLabs
         </span>
       </div>
-      <div className="flex items-center gap-4">
-        <nav className="flex gap-6">
+      
+      <div className="flex items-center gap-3 sm:gap-4">
+        <nav className={`${isMobile ? 'hidden' : 'flex'} gap-4 sm:gap-6`}>
           <Link 
             href="/" 
-            className={`${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
+            className={`text-sm sm:text-base ${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
           >
             Home
           </Link>
           <Link 
             href="/learn" 
-            className={`${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
+            className={`text-sm sm:text-base ${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
           >
             Learn
           </Link>
         </nav>
+        
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`p-2 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-100'}`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isMobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        )}
+        
         <button
           onClick={handleThemeToggle}
-          className={`relative p-2 rounded-lg ${isDark ? 'bg-blue-900/20 hover:bg-blue-900/30' : 'bg-blue-100 hover:bg-blue-200'} transition-all duration-300 overflow-visible`}
+          className={`relative p-1.5 sm:p-2 rounded-lg ${isDark ? 'bg-blue-900/20 hover:bg-blue-900/30' : 'bg-blue-100 hover:bg-blue-200'} transition-all duration-300 overflow-visible`}
           aria-label="Toggle theme"
         >
           <div className="relative z-10">
-            {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-blue-600" />}
+            {isDark ? <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />}
           </div>
         </button>
       </div>
+      
+      {/* Mobile Menu Dropdown */}
+      {isMobile && isMobileMenuOpen && (
+        <div className={`w-full mt-4 pt-4 border-t ${isDark ? 'border-blue-900/30' : 'border-blue-200/30'} flex flex-col gap-3`}>
+          <Link 
+            href="/" 
+            className={`text-center py-2 ${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link 
+            href="/learn" 
+            className={`text-center py-2 ${isDark ? 'hover:text-blue-400' : 'hover:text-blue-600'} transition-colors`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Learn
+          </Link>
+        </div>
+      )}
     </header>
   );
 }
