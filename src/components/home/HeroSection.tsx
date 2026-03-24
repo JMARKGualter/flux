@@ -1,7 +1,7 @@
 'use client';
 
 import { Zap, Headset } from 'lucide-react';
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Center, Preload } from '@react-three/drei';
 import { logo2Url } from '@/lib/constants/models';
@@ -22,6 +22,25 @@ interface HeroSectionProps {
 
 export function HeroSection({ isDark }: HeroSectionProps) {
   const [showVrTooltip, setShowVrTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Position tooltip beside the cursor (offset to the right)
+    setTooltipPosition({
+      x: e.clientX + 15,
+      y: e.clientY - 20
+    });
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setShowVrTooltip(true);
+    handleMouseMove(e);
+  };
+
+  const handleMouseLeave = () => {
+    setShowVrTooltip(false);
+  };
 
   return (
     <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -49,42 +68,27 @@ export function HeroSection({ isDark }: HeroSectionProps) {
             <Zap className="w-5 h-5" />
           </Link>
 
-          {/* VR Section with more spacing */}
+          {/* VR Section with Text and Button */}
           <div className="mt-8">
             <p className={`text-sm mb-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Have a VR HEADSET? Click below
             </p>
-            <div className="relative">
+            <div className="relative inline-block">
               <button
+                ref={buttonRef}
                 disabled
-                onMouseEnter={() => setShowVrTooltip(true)}
-                onMouseLeave={() => setShowVrTooltip(false)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onMouseMove={handleMouseMove}
                 className={`flex items-center justify-center gap-2 w-[260px] px-8 py-4 rounded-lg transition-all cursor-not-allowed ${
                   isDark 
-                    ? 'bg-gray-700 text-gray-400 border border-gray-600' 
-                    : 'bg-gray-300 text-gray-500 border border-gray-400'
+                    ? 'bg-gray-700 text-gray-400 border border-gray-600 hover:bg-gray-600' 
+                    : 'bg-gray-300 text-gray-500 border border-gray-400 hover:bg-gray-200'
                 }`}
               >
                 Start Learning in VR
                 <Headset className="w-5 h-5" />
               </button>
-              
-              {/* Tooltip */}
-              {showVrTooltip && (
-                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-50">
-                  <div className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap shadow-lg ${
-                    isDark 
-                      ? 'bg-gray-800 text-yellow-400 border border-yellow-500/30' 
-                      : 'bg-gray-700 text-yellow-300 border border-yellow-400/30'
-                  }`}>
-                    Coming Soon
-                  </div>
-                  {/* Tooltip arrow */}
-                  <div className={`absolute left-1/2 transform -translate-x-1/2 -bottom-1 w-2 h-2 rotate-45 ${
-                    isDark ? 'bg-gray-800' : 'bg-gray-700'
-                  }`} />
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -122,6 +126,26 @@ export function HeroSection({ isDark }: HeroSectionProps) {
           <p className="absolute bottom-3 right-4 text-[10px] text-gray-500">MADE WITH LOVE FOR THE TRIOE COMMUNITY</p>
         </div>
       </div>
+
+      {/* Cursor-following Tooltip */}
+      {showVrTooltip && (
+        <div
+          className="fixed z-[9999] pointer-events-none"
+          style={{
+            left: tooltipPosition.x,
+            top: tooltipPosition.y,
+            transform: 'translate(0, -50%)'
+          }}
+        >
+          <div className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap shadow-lg animate-fade-in ${
+            isDark 
+              ? 'bg-gray-900 text-yellow-400 border border-yellow-500/50' 
+              : 'bg-gray-800 text-yellow-300 border border-yellow-400/50'
+          }`}>
+            ✨ Coming Soon ✨
+          </div>
+        </div>
+      )}
     </div>
   );
 }
