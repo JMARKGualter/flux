@@ -58,7 +58,6 @@ function FPSDisplay({ isDark }: { isDark: boolean }) {
     };
   }, []);
 
-  // Theme-based styling
   const getStyles = () => {
     if (isDark) {
       return {
@@ -235,6 +234,56 @@ function CameraControlPanel({
   );
 }
 
+// ==================== CATEGORY GRID COMPONENT ====================
+function CategoryGrid({ onModelSelect }: { onModelSelect: (url: string, position: [number, number, number], target: [number, number, number], scale: number) => void }) {
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+
+  const categories = [
+    { name: 'Breadboard', component: BreadboardCategory, key: 'breadboard' },
+    { name: 'Display', component: DisplayCategory, key: 'display' },
+    { name: 'General', component: GeneralCategory, key: 'general' },
+    { name: 'Input', component: InputCategory, key: 'input' },
+    { name: 'Motor', component: MotorCategory, key: 'motor' },
+    { name: 'Output', component: OutputCategory, key: 'output' },
+    { name: 'Power', component: PowerCategory, key: 'power' },
+    { name: 'Power Control', component: PowerControlCategory, key: 'powercontrol' },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+      {categories.map((category) => {
+        const CategoryComponent = category.component;
+        return (
+          <div key={category.key} className="relative">
+            <button
+              onClick={() => setOpenCategory(openCategory === category.key ? null : category.key)}
+              className={`w-full p-2 sm:p-3 rounded-lg text-center text-sm sm:text-base font-medium transition-all ${
+                isDark 
+                  ? 'bg-blue-900/30 hover:bg-blue-800/40 text-blue-300 border border-blue-700/50'
+                  : 'bg-blue-100/80 hover:bg-blue-200/80 text-blue-800 border border-blue-300/50'
+              }`}
+            >
+              {category.name}
+            </button>
+            
+            {openCategory === category.key && (
+              <div className={`absolute left-0 right-0 top-full mt-1 z-50 rounded-lg shadow-xl border overflow-hidden ${
+                isDark 
+                  ? 'bg-gray-900 border-blue-700/50'
+                  : 'bg-white border-blue-300/50'
+              }`}>
+                <div className="max-h-64 overflow-y-auto p-2">
+                  <CategoryComponent onModelSelect={onModelSelect} />
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ==================== VIEW CONFIG ====================
 const getModelViewConfig = (url: string): { position: [number, number, number]; target: [number, number, number] } => {
   if (url.includes('Breadboard63R10C')) return { position: [40, 60, 90], target: [0, 12, 0] };
@@ -351,186 +400,169 @@ export function MainPage() {
           mix-blend-mode: normal;
         }
         
-        html, body {
-          overflow: hidden;
-          height: 100%;
-          margin: 0;
-          padding: 0;
+        /* Allow scrolling on mobile */
+        @media (max-width: 1024px) {
+          html, body {
+            overflow: auto !important;
+            height: auto !important;
+          }
+          body {
+            position: relative !important;
+          }
         }
         
-        body {
-          zoom: 1;
-          -ms-content-zooming: none;
-          touch-action: pan-y pan-x;
-        }
-        
-        /* Mobile optimization */
-        @media (max-width: 768px) {
-          .container {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
+        /* Desktop keeps fixed position */
+        @media (min-width: 1024px) {
+          html, body {
+            overflow: hidden;
+            height: 100%;
+          }
+          body {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
           }
         }
       `}</style>
 
       <div 
-        className={`h-screen w-screen ${isDark ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'} relative overflow-hidden flex flex-col`}
-        style={{ 
-          zoom: 1,
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0
-        }}
+        className={`min-h-screen lg:h-screen lg:w-screen ${isDark ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'} relative overflow-x-hidden lg:overflow-hidden flex flex-col`}
       >
         <AnimatedBackground isDark={isDark} />
 
-        <div className="relative z-10 flex flex-col h-full overflow-hidden">
+        <div className="relative z-10 flex flex-col flex-grow">
           <Header />
 
-          <main className="flex-1 flex flex-col lg:grid lg:grid-cols-[250px_1fr] gap-3 p-2 sm:p-3 lg:p-4 min-h-0 overflow-hidden">
-            {/* Category Sidebar - Horizontal scroll on mobile */}
-            <aside className={`rounded-lg border ${isDark ? 'bg-blue-950/30 border-blue-900/30' : 'bg-white/50 border-blue-200/30'} backdrop-blur-sm p-2 sm:p-3 lg:p-4 overflow-x-auto lg:overflow-y-auto lg:h-full`}>
-              <h2 className="text-sm sm:text-base lg:text-xl font-semibold mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
-                <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400 flex-shrink-0" />
-                <span>Categories</span>
-              </h2>
-              <ul className="flex lg:flex-col gap-1.5 sm:gap-2 lg:gap-1 whitespace-nowrap lg:whitespace-normal">
-                <BreadboardCategory onModelSelect={handleModelSelect} />
-                <DisplayCategory onModelSelect={handleModelSelect} />
-                <GeneralCategory onModelSelect={handleModelSelect} />
-                <InputCategory onModelSelect={handleModelSelect} />
-                <MotorCategory onModelSelect={handleModelSelect} />
-                <OutputCategory onModelSelect={handleModelSelect} />
-                <PowerCategory onModelSelect={handleModelSelect} />
-                <PowerControlCategory onModelSelect={handleModelSelect} />
-              </ul>
-            </aside>
-
-            {/* Right side container - Stack on mobile, side by side on desktop */}
-            <div className="flex flex-col lg:grid lg:grid-cols-[1fr_300px] gap-2 sm:gap-3 lg:gap-4 h-full min-h-0 overflow-hidden">
-              {/* Left column - 3D Viewer and Component Guide */}
-              <div className="flex flex-col gap-2 sm:gap-3 lg:gap-4 h-full min-h-0 overflow-hidden">
-                {/* 3D Viewer */}
-                <div
-                  ref={viewerRef}
-                  className={`rounded-lg border ${isDark ? 'bg-black/20 border-blue-900/30' : 'bg-white/20 border-blue-200/30'} backdrop-blur-sm relative flex-shrink-0`}
-                  style={{
-                    width: '100%',
-                    height: 'clamp(280px, 45vh, 500px)',
-                  }}
-                >
-                  {/* FPS Counter */}
-                  <div className="absolute top-1 right-1 sm:top-2 sm:right-2 lg:top-4 lg:right-4 z-30">
-                    <FPSDisplay isDark={isDark} />
-                  </div>
-
-                  <CameraControlPanel
-                    isDark={isDark}
-                    controlMode={controlMode}
-                    setControlMode={setControlMode}
-                    onFrameView={handleFrameView}
-                  />
-
-                  {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 backdrop-blur-sm">
-                      <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-blue-500"></div>
-                    </div>
-                  )}
-
-                  <div className="w-full h-full">
-                    <Canvas
-                      camera={{ position: cameraPosition, fov: 20, near: 0.1, far: 1000 }}
-                      onCreated={({ gl }) => {
-                        gl.domElement.addEventListener('webglcontextlost', (e) => {
-                          e.preventDefault();
-                        });
-                      }}
-                    >
-                      <ambientLight intensity={5} />
-                      <directionalLight position={[30, 60, 30]} intensity={3} />
-                      <directionalLight position={[-30, 50, 20]} intensity={2.5} />
-                      <directionalLight position={[0, 80, -30]} intensity={2} />
-                      <pointLight position={[0, 50, 0]} intensity={1.5} />
-
-                      <Grid
-                        cellSize={2}
-                        sectionSize={10}
-                        cellThickness={1}
-                        sectionThickness={1.5}
-                        infiniteGrid
-                        fadeDistance={400}
-                        fadeStrength={5}
-                        sectionColor={isDark ? '#c7d4e4' : '#a0b8d0'}
-                        cellColor={isDark ? '#adb8c4' : '#ffffff'}
-                      />
-
-                      <OrbitControls
-                        ref={controlsRef}
-                        enablePan={true}
-                        enableZoom={true}
-                        enableRotate={true}
-                        autoRotate={false}
-                        maxDistance={300}
-                        minDistance={30}
-                        maxPolarAngle={Math.PI}
-                        minPolarAngle={0}
-                        mouseButtons={{
-                          LEFT: controlMode === 'orbit' ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN,
-                          MIDDLE: THREE.MOUSE.DOLLY,
-                          RIGHT: controlMode === 'orbit' ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE,
-                        }}
-                      />
-
-                      {selectedModel && (
-                        <Suspense fallback={null}>
-                          <ComponentModel
-                            key={`model-${modelKey}`}
-                            url={selectedModel.url}
-                            isActive={true}
-                            scale={selectedModel.scale}
-                            onTooltipChange={setTooltip}
-                          />
-                        </Suspense>
-                      )}
-                    </Canvas>
-                  </div>
-
-                  <div className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 lg:bottom-4 lg:left-4 text-[8px] sm:text-[10px] lg:text-xs text-gray-500">
-                    <p>{selectedModel ? 'Hover parts • 360° rotate • Zoom' : 'Select a component'}</p>
-                  </div>
-
-                  {/* Tooltip */}
-                  {tooltip && (
-                    <div
-                      className="absolute z-50 pointer-events-none"
-                      style={{ left: tooltip.x + 8, top: tooltip.y }}
-                    >
-                      <div className={`text-[10px] sm:text-xs px-2 py-1 sm:px-3 sm:py-2 rounded-lg shadow-lg max-w-[200px] sm:max-w-xs border ${
-                        isDark
-                          ? 'bg-gray-900 border-blue-500/40 text-white'
-                          : 'bg-white border-blue-300/40 text-gray-900'
-                      }`}>
-                        {tooltip.text}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Component Guide Container */}
-                <div className="flex-1 min-h-0 overflow-y-auto">
-                  <ComponentGuideContainer 
-                    isDark={isDark} 
-                    selectedModel={selectedModel} 
-                    tooltip={tooltip} 
-                  />
-                </div>
+          <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
+            {/* Mobile/Tablet Layout - Stacked */}
+            <div className="lg:hidden space-y-4">
+              {/* Category Grid - 3x3 on mobile */}
+              <div className="rounded-lg border p-3 sm:p-4 backdrop-blur-sm bg-opacity-30">
+                <h2 className="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2">
+                  <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                  <span>Categories</span>
+                </h2>
+                <CategoryGrid onModelSelect={handleModelSelect} />
               </div>
 
-              {/* Right column - Part Info and Trivia */}
-              <div className="flex flex-col gap-2 sm:gap-3 lg:gap-4 h-full min-h-0 overflow-hidden">
-                <div className="flex-1 min-h-0 overflow-y-auto">
+              {/* 3D Viewer */}
+              <div
+                ref={viewerRef}
+                className={`rounded-lg border backdrop-blur-sm relative`}
+                style={{
+                  width: '100%',
+                  height: 'clamp(300px, 50vh, 450px)',
+                }}
+              >
+                <div className="absolute top-2 right-2 z-30">
+                  <FPSDisplay isDark={isDark} />
+                </div>
+
+                <CameraControlPanel
+                  isDark={isDark}
+                  controlMode={controlMode}
+                  setControlMode={setControlMode}
+                  onFrameView={handleFrameView}
+                />
+
+                {isLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 backdrop-blur-sm">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  </div>
+                )}
+
+                <div className="w-full h-full">
+                  <Canvas
+                    camera={{ position: cameraPosition, fov: 20, near: 0.1, far: 1000 }}
+                    onCreated={({ gl }) => {
+                      gl.domElement.addEventListener('webglcontextlost', (e) => {
+                        e.preventDefault();
+                      });
+                    }}
+                  >
+                    <ambientLight intensity={5} />
+                    <directionalLight position={[30, 60, 30]} intensity={3} />
+                    <directionalLight position={[-30, 50, 20]} intensity={2.5} />
+                    <directionalLight position={[0, 80, -30]} intensity={2} />
+                    <pointLight position={[0, 50, 0]} intensity={1.5} />
+
+                    <Grid
+                      cellSize={2}
+                      sectionSize={10}
+                      cellThickness={1}
+                      sectionThickness={1.5}
+                      infiniteGrid
+                      fadeDistance={400}
+                      fadeStrength={5}
+                      sectionColor={isDark ? '#c7d4e4' : '#a0b8d0'}
+                      cellColor={isDark ? '#adb8c4' : '#ffffff'}
+                    />
+
+                    <OrbitControls
+                      ref={controlsRef}
+                      enablePan={true}
+                      enableZoom={true}
+                      enableRotate={true}
+                      autoRotate={false}
+                      maxDistance={300}
+                      minDistance={30}
+                      maxPolarAngle={Math.PI}
+                      minPolarAngle={0}
+                      mouseButtons={{
+                        LEFT: controlMode === 'orbit' ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN,
+                        MIDDLE: THREE.MOUSE.DOLLY,
+                        RIGHT: controlMode === 'orbit' ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE,
+                      }}
+                    />
+
+                    {selectedModel && (
+                      <Suspense fallback={null}>
+                        <ComponentModel
+                          key={`model-${modelKey}`}
+                          url={selectedModel.url}
+                          isActive={true}
+                          scale={selectedModel.scale}
+                          onTooltipChange={setTooltip}
+                        />
+                      </Suspense>
+                    )}
+                  </Canvas>
+                </div>
+
+                <div className="absolute bottom-2 left-2 text-[10px] text-gray-500">
+                  <p>{selectedModel ? 'Hover parts • 360° rotate • Zoom' : 'Select a component'}</p>
+                </div>
+
+                {tooltip && (
+                  <div
+                    className="absolute z-50 pointer-events-none"
+                    style={{ left: tooltip.x + 8, top: tooltip.y }}
+                  >
+                    <div className={`text-[10px] px-2 py-1 rounded-lg shadow-lg max-w-[200px] border ${
+                      isDark
+                        ? 'bg-gray-900 border-blue-500/40 text-white'
+                        : 'bg-white border-blue-300/40 text-gray-900'
+                    }`}>
+                      {tooltip.text}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Component Guide */}
+              <div className="rounded-lg border backdrop-blur-sm bg-opacity-30 overflow-hidden">
+                <ComponentGuideContainer 
+                  isDark={isDark} 
+                  selectedModel={selectedModel} 
+                  tooltip={tooltip} 
+                />
+              </div>
+
+              {/* Two containers - Equal height split */}
+              <div className="grid grid-cols-1 gap-4">
+                <div className="rounded-lg border backdrop-blur-sm bg-opacity-30 overflow-hidden">
                   <PartInfoDisplay 
                     isDark={isDark} 
                     selectedModel={selectedModel} 
@@ -538,11 +570,138 @@ export function MainPage() {
                   />
                 </div>
 
-                <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="rounded-lg border backdrop-blur-sm bg-opacity-30 overflow-hidden">
                   <TriviaDisplay 
                     isDark={isDark} 
                     selectedModel={selectedModel} 
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Layout - Original Side-by-Side */}
+            <div className="hidden lg:grid lg:grid-cols-[250px_1fr] gap-4 h-full min-h-0">
+              {/* Category Sidebar */}
+              <aside className={`rounded-lg border backdrop-blur-sm p-4 h-full overflow-y-auto`}>
+                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <LayoutGrid className="w-5 h-5 text-blue-400" />
+                  Categories
+                </h2>
+                <ul className="space-y-1">
+                  <BreadboardCategory onModelSelect={handleModelSelect} />
+                  <DisplayCategory onModelSelect={handleModelSelect} />
+                  <GeneralCategory onModelSelect={handleModelSelect} />
+                  <InputCategory onModelSelect={handleModelSelect} />
+                  <MotorCategory onModelSelect={handleModelSelect} />
+                  <OutputCategory onModelSelect={handleModelSelect} />
+                  <PowerCategory onModelSelect={handleModelSelect} />
+                  <PowerControlCategory onModelSelect={handleModelSelect} />
+                </ul>
+              </aside>
+
+              {/* Desktop Content */}
+              <div className="grid grid-cols-[1fr_320px] gap-4 h-full min-h-0">
+                <div className="flex flex-col gap-4 h-full min-h-0">
+                  <div
+                    ref={viewerRef}
+                    className={`rounded-lg border backdrop-blur-sm relative flex-shrink-0`}
+                    style={{ width: '100%', height: '500px' }}
+                  >
+                    <div className="absolute top-4 right-4 z-30">
+                      <FPSDisplay isDark={isDark} />
+                    </div>
+                    <CameraControlPanel
+                      isDark={isDark}
+                      controlMode={controlMode}
+                      setControlMode={setControlMode}
+                      onFrameView={handleFrameView}
+                    />
+                    {isLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/20 backdrop-blur-sm">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                      </div>
+                    )}
+                    <div className="w-full h-full">
+                      <Canvas
+                        camera={{ position: cameraPosition, fov: 20, near: 0.1, far: 1000 }}
+                        onCreated={({ gl }) => {
+                          gl.domElement.addEventListener('webglcontextlost', (e) => {
+                            e.preventDefault();
+                          });
+                        }}
+                      >
+                        <ambientLight intensity={5} />
+                        <directionalLight position={[30, 60, 30]} intensity={3} />
+                        <directionalLight position={[-30, 50, 20]} intensity={2.5} />
+                        <directionalLight position={[0, 80, -30]} intensity={2} />
+                        <pointLight position={[0, 50, 0]} intensity={1.5} />
+                        <Grid
+                          cellSize={2}
+                          sectionSize={10}
+                          cellThickness={1}
+                          sectionThickness={1.5}
+                          infiniteGrid
+                          fadeDistance={400}
+                          fadeStrength={5}
+                          sectionColor={isDark ? '#c7d4e4' : '#a0b8d0'}
+                          cellColor={isDark ? '#adb8c4' : '#ffffff'}
+                        />
+                        <OrbitControls
+                          ref={controlsRef}
+                          enablePan={true}
+                          enableZoom={true}
+                          enableRotate={true}
+                          autoRotate={false}
+                          maxDistance={300}
+                          minDistance={30}
+                          maxPolarAngle={Math.PI}
+                          minPolarAngle={0}
+                          mouseButtons={{
+                            LEFT: controlMode === 'orbit' ? THREE.MOUSE.ROTATE : THREE.MOUSE.PAN,
+                            MIDDLE: THREE.MOUSE.DOLLY,
+                            RIGHT: controlMode === 'orbit' ? THREE.MOUSE.PAN : THREE.MOUSE.ROTATE,
+                          }}
+                        />
+                        {selectedModel && (
+                          <Suspense fallback={null}>
+                            <ComponentModel
+                              key={`model-${modelKey}`}
+                              url={selectedModel.url}
+                              isActive={true}
+                              scale={selectedModel.scale}
+                              onTooltipChange={setTooltip}
+                            />
+                          </Suspense>
+                        )}
+                      </Canvas>
+                    </div>
+                    <div className="absolute bottom-4 left-4 text-xs text-gray-500">
+                      <p>{selectedModel ? 'Hover over parts to learn more • 360° rotate • Zoom' : 'Select a component to begin'}</p>
+                    </div>
+                    {tooltip && (
+                      <div
+                        className="absolute z-50 pointer-events-none"
+                        style={{ left: tooltip.x + 12, top: tooltip.y }}
+                      >
+                        <div className={`text-sm px-3 py-2 rounded-lg shadow-lg max-w-xs border ${
+                          isDark
+                            ? 'bg-gray-900 border-blue-500/40 text-white'
+                            : 'bg-white border-blue-300/40 text-gray-900'
+                        }`}>
+                          {tooltip.text}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <ComponentGuideContainer isDark={isDark} selectedModel={selectedModel} tooltip={tooltip} />
+                </div>
+                <div className="flex flex-col gap-4 h-full min-h-0">
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    <PartInfoDisplay isDark={isDark} selectedModel={selectedModel} hoveredPartName={tooltip?.text ? tooltip.text.split(' - ')[0] : undefined} />
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    <TriviaDisplay isDark={isDark} selectedModel={selectedModel} />
+                  </div>
                 </div>
               </div>
             </div>
