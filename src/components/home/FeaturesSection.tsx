@@ -27,7 +27,7 @@ const features = [
 
 export function FeaturesSection({ isDark }: FeaturesSectionProps) {
   return (
-    <div className="mt-8 sm:mt-12 md:mt-16 lg:mt-24 xl:mt-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pb-8 sm:pb-12">
+    <div className="mt-12 sm:mt-16 md:mt-20 lg:mt-24 xl:mt-32 mb-8 sm:mb-12 md:mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
       {features.map((feature, index) => (
         <FeatureCard
           key={index}

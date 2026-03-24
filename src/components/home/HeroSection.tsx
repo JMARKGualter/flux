@@ -42,7 +42,7 @@ export function HeroSection({ isDark }: HeroSectionProps) {
   };
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-12 items-center">
+    <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
       {/* Text Content */}
       <div className="space-y-4 sm:space-y-6 text-center lg:text-left px-2 sm:px-4 lg:px-0 lg:pl-6">
         <h1 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 lg:mb-6 bg-gradient-to-r ${isDark ? 'from-white via-blue-200 to-blue-400' : 'from-black via-blue-900 to-blue-600'} bg-clip-text text-transparent`}>
@@ -94,13 +94,13 @@ export function HeroSection({ isDark }: HeroSectionProps) {
         </div>
       </div>
 
-      {/* 3D Model */}
+      {/* 3D Model - Responsive height without fixed constraints */}
       <div className="relative w-full mt-6 lg:mt-0">
         <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-blue-600/20 to-purple-600/20' : 'from-blue-400/20 to-purple-400/20'} rounded-2xl blur-3xl`} />
         <div className={`relative bg-gradient-to-br ${isDark ? 'from-blue-950/50 to-blue-900/30' : 'from-blue-100/50 to-blue-50/30'} rounded-2xl border ${isDark ? 'border-blue-500/30' : 'border-blue-300/30'} p-3 sm:p-4 md:p-6 lg:p-8 backdrop-blur-sm`}>
-          <div className="h-[220px] sm:h-[280px] md:h-[350px] lg:h-[400px] relative flex items-center justify-center">
+          <div className="w-full aspect-square max-h-[280px] sm:max-h-[350px] md:max-h-[400px] lg:max-h-[450px] relative flex items-center justify-center">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className={`text-[3rem] sm:text-[5rem] md:text-[8rem] lg:text-[12.5rem] font-black select-none ${isDark ? 'text-blue-900/40' : 'text-blue-200/70'}`}>
+              <span className={`text-[3rem] sm:text-[5rem] md:text-[8rem] lg:text-[10rem] font-black select-none ${isDark ? 'text-blue-900/40' : 'text-blue-200/70'}`}>
                 TRIOE
               </span>
             </div>
