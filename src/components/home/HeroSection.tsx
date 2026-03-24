@@ -11,7 +11,7 @@ function LogoModel() {
   const { scene } = useGLTF(logo2Url);
   return (
     <Center>
-      <primitive object={scene} scale={0.12} />
+      <primitive object={scene} scale={0.15} /> {/* Increased from 0.12 to 0.15 */}
     </Center>
   );
 }
@@ -42,24 +42,25 @@ export function HeroSection({ isDark }: HeroSectionProps) {
   };
 
   return (
-    <div className="w-full py-10 sm:py-12 md:py-16">
+    <div className="w-full py-12 sm:py-16 lg:py-20">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
           {/* Left Column - Text Content */}
           <div className="flex-1">
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 text-center lg:text-left bg-gradient-to-r ${isDark ? 'from-white via-blue-200 to-blue-400' : 'from-black via-blue-900 to-blue-600'} bg-clip-text text-transparent`}>
+            <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6 text-center lg:text-left bg-gradient-to-r ${isDark ? 'from-white via-blue-200 to-blue-400' : 'from-black via-blue-900 to-blue-600'} bg-clip-text text-transparent`}>
               Welcome to 3D workbench
             </h1>
-            <p className={`text-base sm:text-lg md:text-xl ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-6 md:mb-8 text-center lg:text-left`}>
+            <p className={`text-base sm:text-lg lg:text-xl ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-6 lg:mb-8 text-center lg:text-left`}>
               Explore the fascinating world of 3D design, electrical engineering, and cutting-edge technology. 
               Learn about circuit boards, semiconductors, and the future of electronics.
             </p>
             
-            {/* Buttons */}
+            {/* Buttons Container - Fixed widths */}
             <div className="flex flex-col items-center lg:items-start gap-4">
+              {/* Start Learning Button */}
               <Link
                 href="/learn"
-                className={`inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg transition-all shadow-lg ${
+                className={`flex items-center justify-center gap-2 w-[260px] px-6 py-3 rounded-lg transition-all shadow-lg ${
                   isDark 
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-blue-500/50 hover:shadow-blue-500/70' 
                     : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-blue-400/50 hover:shadow-blue-400/70'
@@ -69,6 +70,7 @@ export function HeroSection({ isDark }: HeroSectionProps) {
                 <Zap className="w-5 h-5" />
               </Link>
 
+              {/* VR Section */}
               <div>
                 <p className={`text-sm mb-2 text-center lg:text-left ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   Have a VR HEADSET? Click below
@@ -80,7 +82,7 @@ export function HeroSection({ isDark }: HeroSectionProps) {
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                     onMouseMove={handleMouseMove}
-                    className={`inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg transition-all cursor-not-allowed ${
+                    className={`flex items-center justify-center gap-2 w-[260px] px-6 py-3 rounded-lg transition-all cursor-not-allowed ${
                       isDark 
                         ? 'bg-gray-700 text-gray-400 border border-gray-600 hover:bg-gray-600' 
                         : 'bg-gray-300 text-gray-500 border border-gray-400 hover:bg-gray-200'
@@ -97,7 +99,7 @@ export function HeroSection({ isDark }: HeroSectionProps) {
           {/* Right Column - 3D Model */}
           <div className="flex-1 mt-8 lg:mt-0">
             <div className={`relative bg-gradient-to-br ${isDark ? 'from-blue-950/50 to-blue-900/30' : 'from-blue-100/50 to-blue-50/30'} rounded-2xl border ${isDark ? 'border-blue-500/30' : 'border-blue-300/30'} p-4 sm:p-6 backdrop-blur-sm`}>
-              <div className="w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] relative">
+              <div className="w-full h-[250px] sm:h-[300px] lg:h-[350px] relative">
                 <Canvas 
                   camera={{ position: [0, 0, 1.5], fov: 14 }} 
                   gl={{ antialias: true }}

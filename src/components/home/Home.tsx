@@ -10,14 +10,12 @@ export function Home() {
   const { isDark } = useTheme();
 
   return (
-    <div className={`w-full ${isDark ? 'bg-black text-white' : 'bg-blue-50 text-gray-900'}`}>
+    <div className={`w-full min-h-screen ${isDark ? 'bg-black text-white' : 'bg-blue-50 text-gray-900'} relative overflow-x-hidden overflow-y-auto`}>
       <AnimatedBackground isDark={isDark} />
       <div className="relative z-10">
         <Header />
         <HeroSection isDark={isDark} />
         <FeaturesSection isDark={isDark} />
-        {/* Extra space for smooth scrolling */}
-        <div className="h-16 sm:h-20"></div>
       </div>
     </div>
   );

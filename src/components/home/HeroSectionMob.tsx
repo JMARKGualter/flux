@@ -11,7 +11,7 @@ function LogoModel() {
   const { scene } = useGLTF(logo2Url);
   return (
     <Center>
-      <primitive object={scene} scale={0.12} />
+      <primitive object={scene} scale={0.13} /> {/* Reduced from 0.18 to 0.13 - slightly zoomed out */}
     </Center>
   );
 }
@@ -63,7 +63,7 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
   };
 
   return (
-    <div className="w-full py-8 sm:py-10">
+    <div className="w-full py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col gap-6">
           {/* Text Content */}
@@ -76,11 +76,11 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
               Learn about circuit boards, semiconductors, and the future of electronics.
             </p>
             
-            {/* Buttons */}
+            {/* Buttons - Fixed width */}
             <div className="flex flex-col items-center gap-3 mt-6">
               <Link
                 href="/learn"
-                className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg transition-all shadow-lg w-full max-w-[240px] ${
+                className={`flex items-center justify-center gap-2 w-[240px] px-4 py-2.5 rounded-lg transition-all shadow-lg ${
                   isDark 
                     ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-blue-500/50 hover:shadow-blue-500/70' 
                     : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-blue-400/50 hover:shadow-blue-400/70'
@@ -90,7 +90,7 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
                 <Zap className="w-4 h-4" />
               </Link>
 
-              <div className="w-full max-w-[240px]">
+              <div>
                 <p className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   Have a VR HEADSET? Click below
                 </p>
@@ -104,7 +104,7 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
-                    className={`inline-flex items-center justify-center gap-2 w-full px-6 py-2.5 rounded-lg transition-all cursor-not-allowed ${
+                    className={`flex items-center justify-center gap-2 w-[240px] px-4 py-2.5 rounded-lg transition-all cursor-not-allowed ${
                       isDark 
                         ? 'bg-gray-700 text-gray-400 border border-gray-600 hover:bg-gray-600' 
                         : 'bg-gray-300 text-gray-500 border border-gray-400 hover:bg-gray-200'
