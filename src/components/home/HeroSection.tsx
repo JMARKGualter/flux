@@ -65,12 +65,14 @@ export function HeroSection({ isDark }: HeroSectionProps) {
                     : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-blue-400/50 hover:shadow-blue-400/70'
                 }`}
               >
-                Start Learning
+                Start Learning  
                 <Zap className="w-5 h-5" />
               </Link>
 
               <div>
                 <p className={`text-sm mb-2 text-center lg:text-left ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <br/>
+                  <br/>
                   Have a VR HEADSET? Click below
                 </p>
                 <div className="relative">
