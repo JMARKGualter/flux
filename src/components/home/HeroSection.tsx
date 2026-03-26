@@ -118,7 +118,7 @@ export function HeroSection({ isDark }: HeroSectionProps) {
           {/* Left Column - Text Content */}
           <div className="flex-1">
             <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 lg:mb-6 text-center lg:text-left bg-gradient-to-r ${isDark ? 'from-white via-blue-200 to-blue-400' : 'from-black via-blue-900 to-blue-600'} bg-clip-text text-transparent`}>
-              Welcome to 3D workbench
+              Welcome to Electrop3Dia
             </h1>
             <p className={`text-base sm:text-lg lg:text-xl ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-6 lg:mb-8 text-center lg:text-left`}>
               Explore the fascinating world of 3D design, electrical engineering, and cutting-edge technology.
