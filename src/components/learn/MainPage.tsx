@@ -520,7 +520,7 @@ export function MainPage() {
               {/* Right column - Part Info (top) and Trivia (bottom) */}
               <div className="flex flex-col gap-4 h-full min-h-0">
                 {/* Part Info Display */}
-                <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="h-1/2 min-h-0">
                   <PartInfoDisplay 
                     isDark={isDark} 
                     selectedModel={selectedModel} 
@@ -529,7 +529,7 @@ export function MainPage() {
                 </div>
 
                 {/* Trivia Display */}
-                <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="h-1/2 min-h-0">
                   <TriviaDisplay 
                     isDark={isDark} 
                     selectedModel={selectedModel} 
