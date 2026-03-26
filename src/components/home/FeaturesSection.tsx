@@ -20,8 +20,8 @@ const features = [
   },
   {
     icon: <Box className="w-full h-full" />,
-    title: "3D Prototyping",
-    description: "Explore 3D modeling, rapid prototyping, and the integration of electronics with mechanical design."
+    title: "3D Viewing",
+    description: "Explore electronic components in 3D, inspect every pin, lead, and part up close in an interactive environment."
   }
 ];
 
