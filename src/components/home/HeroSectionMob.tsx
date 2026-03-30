@@ -276,7 +276,7 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
                   Interactive 3D Logo
                 </p>
                 <p className={`text-[8px] sm:text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-500'} mt-0.5`}>
-                  Click and drag to rotate • Click the logo to visit
+                  Click and drag to rotate
                 </p>
               </div>
 
