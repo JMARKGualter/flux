@@ -410,6 +410,24 @@ export const componentPartInfo: ComponentPartInfo = {
     { partName: "Mounting Tab", description: "The metal tab is electrically connected to the collector. Can be bolted to a heatsink for high-current applications.", category: "Thermal" },
   ],
 
+  // ==================== MICROCONTROLLER ====================
+
+  trioeboard: [
+    { partName: "MOSFET Body", description: "Power pMOS transistor used for high-side switching - controlling the positive rail between supply and load.", category: "Main Body" },
+    { partName: "Gate (G)", description: "Control input. Gate voltage must be pulled LOW relative to source to turn on. Logic-level pMOS needs only 3-5V gate drive.", category: "Terminals" },
+    { partName: "Drain (D)", description: "Connected to the load output. Current flows from source through channel to drain.", category: "Terminals" },
+    { partName: "Source (S)", description: "Connected to the positive supply rail. Current enters through the source.", category: "Terminals" },
+    { partName: "Body Diode", description: "Intrinsic reverse diode. Conducts if drain goes above source voltage.", category: "Internal" },
+  ],
+
+  trioebreadboard: [
+    { partName: "TIP120 Body", description: "TO-220 package containing a Darlington pair - two transistors in series with combined gain up to 1000x.", category: "Main Body" },
+    { partName: "Base (B)", description: "Control input. A small signal (as low as 5mA from an Arduino) triggers the Darlington pair to conduct several amperes.", category: "Terminals" },
+    { partName: "Collector (C)", description: "Connect to the load and positive supply. The TIP120 can handle up to 5A continuous and 60V.", category: "Terminals" },
+    { partName: "Emitter (E)", description: "Connect to ground. Current exits here after passing through the load.", category: "Terminals" },
+    { partName: "Mounting Tab", description: "The metal tab is electrically connected to the collector. Can be bolted to a heatsink for high-current applications.", category: "Thermal" },
+  ],
+
 };
 
 // Helper function to get part info for a specific component - covers all 52 components
@@ -483,6 +501,10 @@ export const getPartInfoForComponent = (url: string): PartInfo[] => {
   if (u.includes('nmosmosfet')) return componentPartInfo.nmosmosfet;
   if (u.includes('pmosmosfet')) return componentPartInfo.pmosmosfet;
   if (u.includes('tip120')) return componentPartInfo.tip120;
+
+  // ── MICROCONTROLLER ──
+  if (u.includes('trioeboard')) return componentPartInfo.trioeboard;
+  if (u.includes('trioebreadboard')) return componentPartInfo.trioebreadboard;
 
   // ── DEFAULT ──
   return componentPartInfo.resistor;

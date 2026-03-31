@@ -391,6 +391,22 @@ export const componentTrivia: ComponentTrivia = {
     { fact: "The Darlington configuration was invented by Sidney Darlington at Bell Labs in 1953. He never patented it personally, and it became one of the most widely used transistor configurations ever.", year: "1953" },
   ],
 
+  // ==================== MICROCONTROLLER ====================
+
+  trioeboard: [
+    { fact: "The TIP120 is a Darlington transistor - actually TWO transistors in one package!" },
+    { fact: "The pair gives it an enormous current gain of up to 1,000x." },
+    { fact: "This means a mere 5mA Arduino signal can control over 5 Amps of current - enough to drive motors, solenoids, and relays with ease." },
+    { fact: "The Darlington configuration was invented by Sidney Darlington at Bell Labs in 1953. He never patented it personally, and it became one of the most widely used transistor configurations ever.", year: "1953" },
+  ],
+
+  trioebreadboard: [
+    { fact: "The TIP120 is a Darlington transistor - actually TWO transistors in one package!" },
+    { fact: "The pair gives it an enormous current gain of up to 1,000x." },
+    { fact: "This means a mere 5mA Arduino signal can control over 5 Amps of current - enough to drive motors, solenoids, and relays with ease." },
+    { fact: "The Darlington configuration was invented by Sidney Darlington at Bell Labs in 1953. He never patented it personally, and it became one of the most widely used transistor configurations ever.", year: "1953" },
+  ],
+
 };
 
 // Helper function to get trivia for a specific component - covers all 52 components
@@ -464,6 +480,10 @@ export const getTriviaForComponent = (url: string, count: number = 4): TriviaIte
   if (u.includes('nmosmosfet')) return componentTrivia.nmosmosfet.slice(0, count);
   if (u.includes('pmosmosfet')) return componentTrivia.pmosmosfet.slice(0, count);
   if (u.includes('tip120')) return componentTrivia.tip120.slice(0, count);
+
+  // ── MICROCONTROLLER ──
+  if (u.includes('trioeboard')) return componentTrivia.trioeboard.slice(0, count);
+  if (u.includes('trioebreadboard')) return componentTrivia.trioebreadboard.slice(0, count);
 
   // ── DEFAULT ──
   return componentTrivia.resistor.slice(0, count);
