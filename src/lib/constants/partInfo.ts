@@ -413,20 +413,21 @@ export const componentPartInfo: ComponentPartInfo = {
   // ==================== MICROCONTROLLER ====================
 
   trioeboard: [
-    { partName: "MOSFET Body", description: "Power pMOS transistor used for high-side switching - controlling the positive rail between supply and load.", category: "Main Body" },
-    { partName: "Gate (G)", description: "Control input. Gate voltage must be pulled LOW relative to source to turn on. Logic-level pMOS needs only 3-5V gate drive.", category: "Terminals" },
-    { partName: "Drain (D)", description: "Connected to the load output. Current flows from source through channel to drain.", category: "Terminals" },
-    { partName: "Source (S)", description: "Connected to the positive supply rail. Current enters through the source.", category: "Terminals" },
-    { partName: "Body Diode", description: "Intrinsic reverse diode. Conducts if drain goes above source voltage.", category: "Internal" },
-  ],
+    { partName: "Microcontroller Chip", description: "The main processor running your code. Arduino-compatible, programmable via USB using the Arduino IDE.", category: "Active Element" },
+    { partName: "Digital I/O Pins", description: "Pins that can read or output HIGH/LOW signals. Used for LEDs, buttons, sensors, and more.", category: "Terminals" },
+    { partName: "Analog Input Pins (A0-A5)", description: "Read analog voltages from 0-5V. Used for sensors like potentiometers and photoresistors.", category: "Terminals" },
+    { partName: "PWM Pins", description: "A subset of digital pins marked with ~. Output simulated analog signals for motor speed and LED dimming.", category: "Terminals" },
+    { partName: "VCC / 3.3V / 5V Pins", description: "Power output pins for powering external components and sensors.", category: "Power" },
+    { partName: "GND Pins", description: "Ground reference pins. Every component needs a ground connection.", category: "Power" },
+    { partName: "USB Port", description: "Used for programming the board and serial communication with your computer.", category: "Signal" },
+    { partName: "Reset Button", description: "Restarts the currently loaded program from the beginning.", category: "Mechanical" },
+    { partName: "Power LED", description: "Indicates the board is receiving power.", category: "Markings" },
+    { partName: "TX/RX LEDs", description: "Blink during data transmission and reception over serial communication.", category: "Markings" },
+],
 
   trioebreadboard: [
-    { partName: "TIP120 Body", description: "TO-220 package containing a Darlington pair - two transistors in series with combined gain up to 1000x.", category: "Main Body" },
-    { partName: "Base (B)", description: "Control input. A small signal (as low as 5mA from an Arduino) triggers the Darlington pair to conduct several amperes.", category: "Terminals" },
-    { partName: "Collector (C)", description: "Connect to the load and positive supply. The TIP120 can handle up to 5A continuous and 60V.", category: "Terminals" },
-    { partName: "Emitter (E)", description: "Connect to ground. Current exits here after passing through the load.", category: "Terminals" },
-    { partName: "Mounting Tab", description: "The metal tab is electrically connected to the collector. Can be bolted to a heatsink for high-current applications.", category: "Thermal" },
-  ],
+    { partName: "Power Rails", description: "The long rows on the top marked (5V, 3.3V) and (gnd). Connected horizontally along the top for easy power distribution.", category: "Power Distribution" },
+],
 
 };
 

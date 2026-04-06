@@ -394,18 +394,16 @@ export const componentTrivia: ComponentTrivia = {
   // ==================== MICROCONTROLLER ====================
 
   trioeboard: [
-    { fact: "The TIP120 is a Darlington transistor - actually TWO transistors in one package!" },
-    { fact: "The pair gives it an enormous current gain of up to 1,000x." },
-    { fact: "This means a mere 5mA Arduino signal can control over 5 Amps of current - enough to drive motors, solenoids, and relays with ease." },
-    { fact: "The Darlington configuration was invented by Sidney Darlington at Bell Labs in 1953. He never patented it personally, and it became one of the most widely used transistor configurations ever.", year: "1953" },
-  ],
+    { fact: "TRIOE stands for Internet of Everything - extending IoT beyond devices to include people, processes, and data." },
+    { fact: "The TrioeBoard is Arduino-compatible, meaning millions of existing Arduino libraries and projects work with it out of the box." },
+    { fact: "TRIOE kits are designed specifically for students, making electronics education accessible and locally relevant." },
+    { fact: "The board can be programmed using the Arduino IDE, the same free tool used by millions of makers and engineers worldwide." },
+],
 
   trioebreadboard: [
-    { fact: "The TIP120 is a Darlington transistor - actually TWO transistors in one package!" },
-    { fact: "The pair gives it an enormous current gain of up to 1,000x." },
-    { fact: "This means a mere 5mA Arduino signal can control over 5 Amps of current - enough to drive motors, solenoids, and relays with ease." },
-    { fact: "The Darlington configuration was invented by Sidney Darlington at Bell Labs in 1953. He never patented it personally, and it became one of the most widely used transistor configurations ever.", year: "1953" },
-  ],
+    { fact: "The TrioeBreadboard is designed to pair perfectly with the TrioeBoard, with matching power rail spacing for clean wiring." },
+    { fact: "The TrioeBreadboard follows the standard 0.1 inch (2.54mm) hole spacing - the global standard for electronic component pins." },
+],
 
 };
 

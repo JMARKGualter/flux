@@ -666,28 +666,25 @@ export const tip120Guide: ComponentGuide = {
 // ==================== MICROCONTROLLER ====================
 
 export const trioeboardGuide: ComponentGuide = {
-  title: 'TRIOE Board Guide',
+  title: 'Trioe Board Guide',
   icon: 'Cpu',
   sections: [
-    { title: 'What is a Power pMOS MOSFET?', type: 'paragraph', icon: 'Info', content: 'A power p-channel MOSFET controls current from a positive supply rail (high-side switching). It turns on when the Gate is pulled below the Source voltage, making it ideal for battery disconnect switches and load switching.' },
-    { title: 'Key Specifications', type: 'list', icon: 'Hash', content: ['Vds(max): Maximum drain-source voltage (negative for pMOS)', 'Id(max): Maximum continuous current (negative convention)', 'Rds(on): On-resistance', 'Vgs(th): Negative threshold - Gate must drop below Source by this amount'] },
-    { title: 'Pin Connections', type: 'list', icon: 'Grid', content: ['Source (S): Connect to VCC (positive supply)', 'Gate (G): Pull to VCC via 10k (OFF), drive LOW to turn ON', 'Drain (D): Connect to load', 'Load connects from Drain to GND'] },
+    { title: 'What is the TrioeBoard?', type: 'paragraph', icon: 'Info', content: 'The TrioeBoard is an Arduino-compatible microcontroller board designed for learning electronics and IoT through hands-on projects. It can be programmed using the Arduino IDE and works with millions of existing Arduino libraries.' },
+    { title: 'Getting Started', type: 'list', icon: 'Zap', content: ['Install the Arduino IDE from arduino.cc', 'Connect the board via USB', 'Select the correct board and port in Tools menu', 'Write your code and click Upload', 'Use Serial.begin(9600) and Serial.println() for debugging'] },
+    { title: 'Pin Types', type: 'list', icon: 'Grid', content: ['Digital pins: read/write HIGH or LOW signals', 'Analog pins (A0-A5): read variable voltages 0-5V', 'PWM pins (~): simulate analog output for motors and LEDs', 'Power pins: 3.3V, 5V, and GND for powering components'] },
   ],
-  proTips: ['Use an N-channel with a gate driver for simpler high-side switching in most designs', 'pMOS is most useful when you want the gate tied to the same rail as Source', 'Add a gate-source zener diode to protect against Vgs exceeding the rating'],
-  commonMistakes: ['Source to GND instead of VCC', 'Logic voltage not low enough to fully enhance the channel', 'Forgetting Vgs rating - exceeding it destroys the gate oxide'],
+  proTips: ['Always connect GND before VCC when wiring components', 'Use Serial.println() to debug sensor readings', 'Never draw more than 40mA from a single digital pin', 'Add a 100-470uF capacitor across power rails to stabilize voltage'],
+  commonMistakes: ['Wrong board or port selected in Arduino IDE', 'Forgetting to share GND between board and external components', 'Drawing too much current from a single pin (use a transistor for motors)', 'Not installing required libraries before uploading code'],
 };
 
 export const trioebreadboardGuide: ComponentGuide = {
-  title: 'TRIOE Breadboard Guide',
-  icon: 'Cpu',
+  title: 'Trioe Breadboard Guide',
+  icon: 'CircuitBoard',
   sections: [
-    { title: 'What is the TIP120?', type: 'paragraph', icon: 'Info', content: 'The TIP120 is a Darlington transistor - two NPN transistors connected internally for a combined gain up to 1000x. A 5mA Arduino signal can control up to 5A of load current.' },
-    { title: 'Pin Identification (TO-220)', type: 'list', icon: 'Grid', content: ['Base (B): Left pin - control input from MCU', 'Collector (C): Center pin - connect to load', 'Emitter (E): Right pin - connect to GND', 'Metal tab: electrically connected to Collector - use heatsink for high power'] },
-    { title: 'Switching Circuit', type: 'list', icon: 'Cpu', content: ['GPIO -> 1k resistor -> Base', 'Collector -> Load -> VCC (up to 60V, 5A continuous)', 'Emitter -> GND', 'Always add flyback diode across inductive loads'] },
-    { title: 'Voltage Drop Warning', type: 'warning', icon: 'AlertTriangle', content: 'The TIP120 has a higher saturation voltage (~1.4V) than a single transistor due to the Darlington pair. Account for this in low-voltage circuits.' },
+    { title: 'What is the TrioeBreadboard?', type: 'paragraph', icon: 'Info', content: 'The TrioeBreadboard is a  prototyping board designed to pair with the Trioe Board.' },
   ],
-  proTips: ['Add heatsink if switching more than 1-2A continuously', 'Use a 10k pull-down from Base to GND for a reliable OFF state', 'For motors, always add a 1N4001 flyback diode across the motor terminals'],
-  commonMistakes: ['Forgetting the flyback diode on motors/relays/solenoids', 'Ignoring the 1.4V saturation voltage in low-voltage applications', 'No heatsink for high-current loads (TIP120 gets very hot)'],
+  proTips: ['Color-code your wires: red for power, black for ground', 'Keep wires flat against the board for cleaner layouts', 'Take a photo of working circuits before disassembling'],
+  commonMistakes: ['Not connecting both power rails to the TrioeBoard', 'Pushing components in at an angle causing poor contact'],
 };
 
 // ==================== GUIDE REGISTRY ====================
