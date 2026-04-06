@@ -394,7 +394,7 @@ export const componentTrivia: ComponentTrivia = {
   // ==================== MICROCONTROLLER ====================
 
   trioeboard: [
-    { fact: "TRIOE stands for Internet of Everything - extending IoT beyond devices to include people, processes, and data." },
+    { fact: "TRIOE stands for Tinkering Resource for Internet of Everything - extending IoT beyond devices to include people, processes, and data." },
     { fact: "The TrioeBoard is Arduino-compatible, meaning millions of existing Arduino libraries and projects work with it out of the box." },
     { fact: "TRIOE kits are designed specifically for students, making electronics education accessible and locally relevant." },
     { fact: "The board can be programmed using the Arduino IDE, the same free tool used by millions of makers and engineers worldwide." },
@@ -407,7 +407,7 @@ export const componentTrivia: ComponentTrivia = {
 
 };
 
-// Helper function to get trivia for a specific component - covers all 52 components
+// Helper function to get trivia for a specific component
 export const getTriviaForComponent = (url: string, count: number = 4): TriviaItem[] => {
   const u = url.toLowerCase();
 

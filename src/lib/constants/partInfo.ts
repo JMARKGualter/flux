@@ -431,7 +431,7 @@ export const componentPartInfo: ComponentPartInfo = {
 
 };
 
-// Helper function to get part info for a specific component - covers all 52 components
+// Helper function to get part info for a specific component
 export const getPartInfoForComponent = (url: string): PartInfo[] => {
   const u = url.toLowerCase();
 
