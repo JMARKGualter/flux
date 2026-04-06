@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   // Open Graph - Facebook, Discord, Slack, WhatsApp, iMessage
   openGraph: {
     title: "3D Electronics Workbench",
-    description: "Explore 52 electronic components in interactive 3D. Learn about each part, how it works, and how to use it — built for students from elementary to high school.",
+    description: "Explore electronic components in interactive 3D. Learn about each part, how it works, and how to use it. Built for students from elementary to high school.",
     url: "https://flux-theta-blush.vercel.app/",
     siteName: "3D Electronics Workbench",
     images: [
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "3D Electronics Workbench",
-    description: "Explore 52 electronic components in interactive 3D. Built for students from elementary to high school.",
+    description: "Explore electronic components in interactive 3D. Built for students from elementary to high school.",
     images: ["https://flux-theta-blush.vercel.app/images/og-image.png"],
   },
 };
