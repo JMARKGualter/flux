@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     siteName: "3D Electronics Workbench",
     images: [
       {
-        url: "https://flux-theta-blush.vercel.app/public/images/og-image.png",
+        url: "https://flux-theta-blush.vercel.app/images/og-image.png",
         width: 1200,
         height: 630,
         alt: "3D Electronics Workbench - Interactive Component Explorer",
