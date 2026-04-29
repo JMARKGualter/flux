@@ -4,6 +4,7 @@ import { Header } from './Header';
 import { HeroSectionMob } from './HeroSectionMob';
 import { FeaturesSection } from './FeaturesSection';
 import { AnimatedBackground } from './AnimatedBackground';
+import { CreditsFooter } from '@/components/shared/CreditsFooter';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export function HomeMob() {
@@ -16,6 +17,7 @@ export function HomeMob() {
         <Header />
         <HeroSectionMob isDark={isDark} />
         <FeaturesSection isDark={isDark} />
+        <CreditsFooter isDark={isDark} />
       </div>
     </div>
   );

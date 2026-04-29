@@ -4,6 +4,7 @@ import { Header } from './Header';
 import { HeroSection } from './HeroSection';
 import { FeaturesSection } from './FeaturesSection';
 import { AnimatedBackground } from './AnimatedBackground';
+import { CreditsFooter } from '@/components/shared/CreditsFooter';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export function Home() {
@@ -16,6 +17,7 @@ export function Home() {
         <Header />
         <HeroSection isDark={isDark} />
         <FeaturesSection isDark={isDark} />
+        <CreditsFooter isDark={isDark} />
       </div>
     </div>
   );
