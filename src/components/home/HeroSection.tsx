@@ -1,6 +1,6 @@
 'use client';
 
-import { Zap, Headset } from 'lucide-react';
+import { Zap, Headset, CircuitBoard } from 'lucide-react';
 import { Suspense, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Center, Preload } from '@react-three/drei';
@@ -107,17 +107,31 @@ export function HeroSection({ isDark }: HeroSectionProps) {
 
             {/* Buttons */}
             <div className="flex flex-col items-center lg:items-start gap-4">
-              <Link
-                href="/learn"
-                className={`flex items-center justify-center gap-2 w-[260px] px-6 py-3 rounded-lg transition-all shadow-lg ${
-                  isDark
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-blue-500/50 hover:shadow-blue-500/70'
-                    : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-blue-400/50 hover:shadow-blue-400/70'
-                }`}
-              >
-                Start Learning
-                <Zap className="w-5 h-5" />
-              </Link>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Link
+                  href="/learn"
+                  className={`flex items-center justify-center gap-2 w-[260px] px-6 py-3 rounded-lg transition-all shadow-lg ${
+                    isDark
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-blue-500/50 hover:shadow-blue-500/70'
+                      : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-blue-400/50 hover:shadow-blue-400/70'
+                  }`}
+                >
+                  Start Learning
+                  <Zap className="w-5 h-5" />
+                </Link>
+
+                <Link
+                  href="/simulate"
+                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all shadow-lg ${
+                    isDark
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-emerald-500/50 hover:shadow-emerald-500/70'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-emerald-400/50 hover:shadow-emerald-400/70'
+                  }`}
+                >
+                  Start 3D Simulation Workbench
+                  <CircuitBoard className="w-5 h-5" />
+                </Link>
+              </div>
 
               <div>
                 <p className={`text-sm mb-2 text-center lg:text-left ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

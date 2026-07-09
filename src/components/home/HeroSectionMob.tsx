@@ -1,6 +1,6 @@
 'use client';
 
-import { Zap, Headset } from 'lucide-react';
+import { Zap, Headset, CircuitBoard } from 'lucide-react';
 import { Suspense, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Center, Preload } from '@react-three/drei';
@@ -161,6 +161,18 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
               >
                 Start Learning
                 <Zap className="w-4 h-4" />
+              </Link>
+
+              <Link
+                href="/simulate"
+                className={`flex items-center justify-center gap-2 w-[240px] px-4 py-2.5 rounded-lg transition-all shadow-lg text-sm ${
+                  isDark
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-emerald-500/50 hover:shadow-emerald-500/70'
+                    : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-emerald-400/50 hover:shadow-emerald-400/70'
+                }`}
+              >
+                Start 3D Simulation
+                <CircuitBoard className="w-4 h-4" />
               </Link>
 
               <div>
