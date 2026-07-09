@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useCallback, Suspense } from 'react';
+import { useMemo, useState, useCallback, useEffect, Suspense } from 'react';
 import { useThree, ThreeEvent } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Grid, Center } from '@react-three/drei';
 import * as THREE from 'three';
@@ -14,17 +14,78 @@ const COMPONENT_SIZE = 1;
 // Terminal ports sit just outside the normalized footprint on the local X axis
 export const PORT_OFFSET_X = 0.62;
 const PORT_Y = 0.1;
-const GRID_SNAP = 0.25;
-const BOARD_LIMIT = 6;
+// The workbench always starts with a breadboard; its long axis spans this many units
+const BOARD_LENGTH = 7;
+const BOARD_SNAP = 0.1;   // breadboard hole pitch feel
+const GRID_SNAP = 0.25;   // off-board snapping
+const BOARD_LIMIT = 8;
+
+// Jumper-wire colors, cycled per wire like a real kit
+const WIRE_COLORS = ['#dc2626', '#1f2937', '#2563eb', '#16a34a', '#eab308', '#ea580c'];
 
 export type SimMode = 'select' | 'wire' | 'run';
+
+export interface BoardInfo {
+  topY: number;
+  halfX: number;
+  halfZ: number;
+}
 
 // World position of a component's terminal port (mirrors the port meshes below)
 export function portWorldPosition(comp: PlacedComponent, terminal: string): [number, number, number] {
   const lx = terminal === 'a' ? PORT_OFFSET_X : -PORT_OFFSET_X;
   const cos = Math.cos(comp.rotationY);
   const sin = Math.sin(comp.rotationY);
-  return [comp.position[0] + lx * cos, PORT_Y, comp.position[2] - lx * sin];
+  return [
+    comp.position[0] + lx * cos,
+    comp.position[1] + PORT_Y,
+    comp.position[2] - lx * sin,
+  ];
+}
+
+// ==================== BREADBOARD BASE ====================
+// Every workspace starts from a breadboard, PCBX-style. It is fixed scenery:
+// components are placed and snapped onto its top surface.
+
+function BreadboardBase({ onMeasured, onBackgroundClick }: {
+  onMeasured: (board: BoardInfo) => void;
+  onBackgroundClick: () => void;
+}) {
+  const { scene } = useGLTF('/models/breadboard/Breadboard63R10C.glb');
+  const instance = useMemo(() => scene.clone(true), [scene]);
+
+  const layout = useMemo(() => {
+    const box = new THREE.Box3().setFromObject(instance);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const horizontal = Math.max(size.x, size.z);
+    const scale = horizontal > 0 ? BOARD_LENGTH / horizontal : 1;
+    const rotY = size.z > size.x ? Math.PI / 2 : 0; // long axis along X
+    return {
+      scale,
+      rotY,
+      center,
+      yOffset: -box.min.y * scale,
+      topY: size.y * scale,
+      halfX: (Math.max(size.x, size.z) * scale) / 2,
+      halfZ: (Math.min(size.x, size.z) * scale) / 2,
+    };
+  }, [instance]);
+
+  useEffect(() => {
+    onMeasured({ topY: layout.topY, halfX: layout.halfX, halfZ: layout.halfZ });
+  }, [layout, onMeasured]);
+
+  return (
+    <group rotation={[0, layout.rotY, 0]} position={[0, layout.yOffset, 0]} scale={layout.scale}>
+      <group
+        position={[-layout.center.x, 0, -layout.center.z]}
+        onClick={onBackgroundClick}
+      >
+        <primitive object={instance} />
+      </group>
+    </group>
+  );
 }
 
 // ==================== TERMINAL PORT ====================
@@ -76,6 +137,7 @@ function Port({ terminal, mode, isPending, onTerminalClick }: PortProps) {
 interface SceneComponentProps {
   comp: PlacedComponent;
   mode: SimMode;
+  board: BoardInfo | null;
   selected: boolean;
   pendingTerminal: TerminalRef | null;
   result: SolveResult['perComponent'][string] | undefined;
@@ -87,7 +149,7 @@ interface SceneComponentProps {
 }
 
 function SceneComponent({
-  comp, mode, selected, pendingTerminal, result,
+  comp, mode, board, selected, pendingTerminal, result,
   onSelect, onMove, onDragChange, onTerminalClick, onRunClick,
 }: SceneComponentProps) {
   const model = modelRegistry[comp.modelId];
@@ -140,10 +202,15 @@ function SceneComponent({
     const onPointerMove = (ev: PointerEvent) => {
       const p = groundPoint(ev.clientX, ev.clientY);
       if (!p) return;
-      const snap = (v: number) => Math.round(v / GRID_SNAP) * GRID_SNAP;
-      const x = THREE.MathUtils.clamp(snap(p[0] + offset[0]), -BOARD_LIMIT, BOARD_LIMIT);
-      const z = THREE.MathUtils.clamp(snap(p[1] + offset[1]), -BOARD_LIMIT, BOARD_LIMIT);
-      onMove(comp.id, [x, 0, z]);
+      const rawX = p[0] + offset[0];
+      const rawZ = p[1] + offset[1];
+      const onBoard = !!board && Math.abs(rawX) <= board.halfX && Math.abs(rawZ) <= board.halfZ;
+      const step = onBoard ? BOARD_SNAP : GRID_SNAP;
+      const snap = (v: number) => Math.round(v / step) * step;
+      const x = THREE.MathUtils.clamp(snap(rawX), -BOARD_LIMIT, BOARD_LIMIT);
+      const z = THREE.MathUtils.clamp(snap(rawZ), -BOARD_LIMIT, BOARD_LIMIT);
+      const y = onBoard ? board.topY : 0;
+      onMove(comp.id, [x, y, z]);
     };
 
     const onPointerUp = () => {
@@ -153,7 +220,7 @@ function SceneComponent({
 
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp, { once: true });
-  }, [mode, comp.id, comp.position, camera, gl, onSelect, onMove, onDragChange, onRunClick]);
+  }, [mode, board, comp.id, comp.position, camera, gl, onSelect, onMove, onDragChange, onRunClick]);
 
   const glowColor = SIM_SPECS[comp.modelId]?.kind === 'led'
     ? (SIM_SPECS[comp.modelId] as { color?: string }).color ?? '#ffcc66'
@@ -213,12 +280,13 @@ function SceneComponent({
 
 interface SceneWireProps {
   wire: Wire;
+  colorIndex: number;
   components: PlacedComponent[];
   selected: boolean;
   onSelect: (id: string) => void;
 }
 
-function SceneWire({ wire, components, selected, onSelect }: SceneWireProps) {
+function SceneWire({ wire, colorIndex, components, selected, onSelect }: SceneWireProps) {
   const geometry = useMemo(() => {
     const fromComp = components.find((c) => c.id === wire.from.componentId);
     const toComp = components.find((c) => c.id === wire.to.componentId);
@@ -226,11 +294,18 @@ function SceneWire({ wire, components, selected, onSelect }: SceneWireProps) {
 
     const a = portWorldPosition(fromComp, wire.from.terminal);
     const b = portWorldPosition(toComp, wire.to.terminal);
-    const mid = new THREE.Vector3((a[0] + b[0]) / 2, Math.max(a[1], b[1]) + 0.35, (a[2] + b[2]) / 2);
+    const dist = Math.hypot(b[0] - a[0], b[2] - a[2]);
+    // low jumper-wire arc that hugs the board
+    const arc = 0.12 + dist * 0.08;
+    const mid = new THREE.Vector3(
+      (a[0] + b[0]) / 2,
+      Math.max(a[1], b[1]) + arc,
+      (a[2] + b[2]) / 2,
+    );
     const curve = new THREE.QuadraticBezierCurve3(
       new THREE.Vector3(...a), mid, new THREE.Vector3(...b),
     );
-    return new THREE.TubeGeometry(curve, 24, 0.025, 8, false);
+    return new THREE.TubeGeometry(curve, 24, 0.022, 8, false);
   }, [wire, components]);
 
   if (!geometry) return null;
@@ -245,9 +320,28 @@ function SceneWire({ wire, components, selected, onSelect }: SceneWireProps) {
       onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
       onPointerOut={() => { document.body.style.cursor = 'default'; }}
     >
-      <meshStandardMaterial color={selected ? '#f59e0b' : '#b45309'} roughness={0.4} />
+      <meshStandardMaterial
+        color={selected ? '#f59e0b' : WIRE_COLORS[colorIndex % WIRE_COLORS.length]}
+        roughness={0.45}
+      />
     </mesh>
   );
+}
+
+// ==================== CAMERA RESET ====================
+
+const CAMERA_HOME: [number, number, number] = [0, 6.5, 8];
+
+function CameraReset({ signal }: { signal: number }) {
+  const { camera, controls } = useThree();
+  useEffect(() => {
+    if (signal === 0) return;
+    camera.position.set(...CAMERA_HOME);
+    const orbit = controls as { target?: THREE.Vector3; update?: () => void } | null;
+    orbit?.target?.set(0, 0, 0);
+    orbit?.update?.();
+  }, [signal, camera, controls]);
+  return null;
 }
 
 // ==================== SCENE ROOT ====================
@@ -260,6 +354,9 @@ interface SimSceneProps {
   selectedId: string | null;
   pendingTerminal: TerminalRef | null;
   results: SolveResult | null;
+  fitSignal: number;
+  onBoardMeasured: (board: BoardInfo) => void;
+  board: BoardInfo | null;
   onSelect: (id: string | null) => void;
   onMove: (id: string, position: [number, number, number]) => void;
   onTerminalClick: (ref: TerminalRef) => void;
@@ -268,6 +365,7 @@ interface SimSceneProps {
 
 export function SimScene({
   isDark, mode, components, wires, selectedId, pendingTerminal, results,
+  fitSignal, onBoardMeasured, board,
   onSelect, onMove, onTerminalClick, onRunClick,
 }: SimSceneProps) {
   const [dragging, setDragging] = useState(false);
@@ -298,12 +396,18 @@ export function SimScene({
         minDistance={2}
         maxDistance={30}
       />
+      <CameraReset signal={fitSignal} />
+
+      <Suspense fallback={null}>
+        <BreadboardBase onMeasured={onBoardMeasured} onBackgroundClick={() => onSelect(null)} />
+      </Suspense>
 
       {components.map((comp) => (
         <Suspense key={comp.id} fallback={null}>
           <SceneComponent
             comp={comp}
             mode={mode}
+            board={board}
             selected={selectedId === comp.id}
             pendingTerminal={pendingTerminal}
             result={results?.perComponent[comp.id]}
@@ -316,10 +420,11 @@ export function SimScene({
         </Suspense>
       ))}
 
-      {wires.map((wire) => (
+      {wires.map((wire, i) => (
         <SceneWire
           key={wire.id}
           wire={wire}
+          colorIndex={i}
           components={components}
           selected={selectedId === wire.id}
           onSelect={onSelect}

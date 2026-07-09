@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CircuitBoard, MousePointer2, Cable, Play, Square, Trash2, Zap } from 'lucide-react';
+import { ArrowLeft, CircuitBoard, MousePointer2, Cable, Play, Square, Trash2, Zap, Scan } from 'lucide-react';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { useTheme } from '@/contexts/ThemeContext';
 import { modelRegistry } from '@/lib/3d/ModelLibrary';
 import { PlacedComponent, Wire, TerminalRef, SIM_SPECS, terminalKey } from '@/lib/sim/types';
 import { solveCircuit } from '@/lib/sim/solver';
-import { SimScene, SimMode } from './SimScene';
+import { SimScene, SimMode, BoardInfo } from './SimScene';
 import { Palette } from './Palette';
 import { Inspector } from './Inspector';
 
@@ -28,6 +28,9 @@ export function SimWorkbench() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<SimMode>('select');
   const [pendingTerminal, setPendingTerminal] = useState<TerminalRef | null>(null);
+  const [board, setBoard] = useState<BoardInfo | null>(null);
+  const [fitSignal, setFitSignal] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   // Save is gated on `loaded` STATE (not a ref) so it can never run before the
   // loaded components/wires have actually been committed — otherwise the first
   // save-effect pass would overwrite the stored layout with the empty initial state.
@@ -80,20 +83,33 @@ export function SimWorkbench() {
     return () => { ctx?.close().catch(() => {}); };
   }, [mode, results, components]);
 
+  // Simulation clock shown in the toolbar while running
+  useEffect(() => {
+    if (mode !== 'run') {
+      setElapsedMs(0);
+      return;
+    }
+    const t0 = performance.now();
+    const id = setInterval(() => setElapsedMs(performance.now() - t0), 53);
+    return () => clearInterval(id);
+  }, [mode]);
+
   // ---------- editing actions ----------
+  // New parts land on the breadboard, staggered along its length
   const addComponent = useCallback((modelId: string) => {
     setComponents((prev) => {
       const n = prev.length;
-      const position: [number, number, number] = [
-        ((n % 5) - 2) * 1.6,
-        0,
-        (Math.floor(n / 5) % 4) * 1.6 - 1.6,
-      ];
-      const comp: PlacedComponent = { id: newId(modelId), modelId, position, rotationY: 0, props: {} };
+      const spanX = board ? board.halfX - 0.8 : 2.8;
+      const x = ((n % 6) - 2.5) * (spanX / 2.5);
+      const z = (Math.floor(n / 6) % 2 === 0 ? 1 : -1) * 0.4;
+      const y = board ? board.topY : 0;
+      const comp: PlacedComponent = {
+        id: newId(modelId), modelId, position: [x, y, z], rotationY: 0, props: {},
+      };
       setSelectedId(comp.id);
       return [...prev, comp];
     });
-  }, []);
+  }, [board]);
 
   const moveComponent = useCallback((id: string, position: [number, number, number]) => {
     setComponents((prev) => prev.map((c) => (c.id === id ? { ...c, position } : c)));
@@ -199,26 +215,31 @@ export function SimWorkbench() {
   const selectedWire = wires.find((w) => w.id === selectedId) ?? null;
 
   // ---------- UI ----------
-  const modeButton = (target: SimMode, label: string, icon: React.ReactNode) => {
-    const active = mode === target;
-    return (
-      <button
-        onClick={() => setModeSafe(target)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-          active
-            ? target === 'run'
-              ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/40'
-              : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/40'
-            : isDark
-              ? 'text-gray-300 hover:bg-blue-900/40'
-              : 'text-gray-700 hover:bg-blue-100'
-        }`}
-      >
-        {icon}
-        {label}
-      </button>
-    );
+  const formatClock = (ms: number) => {
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    const x = Math.floor(ms % 1000);
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(x).padStart(3, '0')} ms`;
   };
+
+  // PCBX-style floating tool button: icon-only, highlighted when active
+  const toolButton = (
+    onClick: () => void,
+    icon: React.ReactNode,
+    title: string,
+    active = false,
+    activeClass = 'bg-blue-600 text-white',
+  ) => (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+        active ? activeClass : 'text-gray-300 hover:bg-white/10'
+      }`}
+    >
+      {icon}
+    </button>
+  );
 
   return (
     <div className={`h-screen w-screen ${isDark ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'} flex flex-col overflow-hidden`}>
@@ -238,20 +259,13 @@ export function SimWorkbench() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {modeButton('select', 'Select', <MousePointer2 className="w-4 h-4" />)}
-          {modeButton('wire', 'Wire', <Cable className="w-4 h-4" />)}
-          {mode === 'run'
-            ? modeButton('select', 'Stop', <Square className="w-4 h-4" />)
-            : modeButton('run', 'Run', <Play className="w-4 h-4" />)}
-          <button
-            onClick={clearAll}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-red-500 ${isDark ? 'hover:bg-red-900/30' : 'hover:bg-red-100'}`}
-          >
-            <Trash2 className="w-4 h-4" />
-            Clear
-          </button>
-        </div>
+        <button
+          onClick={clearAll}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors text-red-500 ${isDark ? 'hover:bg-red-900/30' : 'hover:bg-red-100'}`}
+        >
+          <Trash2 className="w-4 h-4" />
+          Clear
+        </button>
       </header>
 
       <main className="flex-1 grid grid-cols-[230px_1fr_250px] gap-3 p-3 min-h-0 min-w-0">
@@ -260,7 +274,7 @@ export function SimWorkbench() {
         {/* 3D canvas */}
         <div className={`relative rounded-lg border overflow-hidden ${isDark ? 'bg-black/40 border-blue-900/30' : 'bg-white/40 border-blue-200/30'}`}>
           <Canvas
-            camera={{ position: [5, 6, 7], fov: 45 }}
+            camera={{ position: [0, 6.5, 8], fov: 45 }}
             onPointerMissed={() => { setSelectedId(null); setPendingTerminal(null); }}
           >
             <SimScene
@@ -271,12 +285,29 @@ export function SimWorkbench() {
               selectedId={selectedId}
               pendingTerminal={pendingTerminal}
               results={results}
+              fitSignal={fitSignal}
+              board={board}
+              onBoardMeasured={setBoard}
               onSelect={setSelectedId}
               onMove={moveComponent}
               onTerminalClick={handleTerminalClick}
               onRunClick={handleRunClick}
             />
           </Canvas>
+
+          {/* Floating tool bar, PCBX-style */}
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 px-2 py-1.5 rounded-xl bg-gray-900/85 border border-white/10 shadow-xl backdrop-blur-sm">
+            {toolButton(() => setModeSafe('select'), <MousePointer2 className="w-4.5 h-4.5" />, 'Select & move (drag parts)', mode === 'select')}
+            {toolButton(() => setModeSafe('wire'), <Cable className="w-4.5 h-4.5" />, 'Wire terminals', mode === 'wire')}
+            {toolButton(() => setFitSignal((s) => s + 1), <Scan className="w-4.5 h-4.5" />, 'Reset camera view')}
+            <div className="w-px h-6 bg-white/15 mx-1" />
+            {mode === 'run'
+              ? toolButton(() => setModeSafe('select'), <Square className="w-4.5 h-4.5" />, 'Stop simulation', true, 'bg-red-600 text-white')
+              : toolButton(() => setModeSafe('run'), <Play className="w-4.5 h-4.5" />, 'Run simulation', true, 'bg-blue-600 text-white hover:bg-blue-500')}
+            <span className={`font-mono text-xs px-2 tabular-nums ${mode === 'run' ? 'text-green-400' : 'text-gray-500'}`}>
+              {formatClock(elapsedMs)}
+            </span>
+          </div>
 
           {/* status bar */}
           <div className="absolute bottom-0 left-0 right-0 px-3 py-2 pointer-events-none">
