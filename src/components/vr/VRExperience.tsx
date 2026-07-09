@@ -144,7 +144,7 @@ export function VRExperience() {
         <div className="absolute bottom-4 left-4 text-xs text-gray-500 pointer-events-none">
           <p>
             {inSession
-              ? 'Point your controller at the menu to pick components; aim at parts for tooltips'
+              ? 'Grab the model to move or rotate it; grab with both hands and pull apart to zoom. Point at parts for tooltips.'
               : 'Preview: drag to orbit, scroll to zoom, click panels to interact. Put on a headset and press Enter VR.'}
           </p>
         </div>
