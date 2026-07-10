@@ -13,8 +13,15 @@ import { VRWorkbench } from './VRWorkbench';
 // Configure Draco loader globally (same decoder as the learn page)
 useGLTF.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
 
+// Pointer ray: the library default (white, 0.4 opacity, 5mm, 1m long) is hard
+// to see against the bright grid, and 1m doesn't reach the panels.
+const rayModel = { color: '#93c5fd', opacity: 0.9, size: 0.012, maxLength: 3 };
+
 // XR store — this module is only ever loaded client-side (dynamic import, ssr: false)
-const store = createXRStore();
+const store = createXRStore({
+  controller: { rayPointer: { rayModel } },
+  hand: { rayPointer: { rayModel } },
+});
 
 export function VRExperience() {
   const { isDark } = useTheme();
