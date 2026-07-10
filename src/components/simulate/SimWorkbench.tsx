@@ -256,6 +256,9 @@ export function SimWorkbench() {
           <h1 className="text-lg font-semibold flex items-center gap-2 truncate">
             <CircuitBoard className="w-5 h-5 text-blue-400 flex-shrink-0" />
             3D Simulation Workbench
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDark ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-amber-100 text-amber-700 border border-amber-300'}`}>
+              Beta
+            </span>
           </h1>
         </div>
 

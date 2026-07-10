@@ -130,6 +130,9 @@ export function HeroSection({ isDark }: HeroSectionProps) {
                 >
                   Start 3D Simulation Workbench
                   <CircuitBoard className="w-5 h-5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 border border-white/40">
+                    Beta
+                  </span>
                 </Link>
               </div>
 

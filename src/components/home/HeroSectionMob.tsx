@@ -173,6 +173,9 @@ export function HeroSectionMob({ isDark }: HeroSectionMobProps) {
               >
                 Start 3D Simulation
                 <CircuitBoard className="w-4 h-4" />
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-white/20 border border-white/40">
+                  Beta
+                </span>
               </Link>
 
               <div>
