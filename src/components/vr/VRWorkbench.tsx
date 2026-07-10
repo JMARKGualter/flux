@@ -247,8 +247,8 @@ export function VRWorkbench({ isDark, selectedId, onModelSelect }: VRWorkbenchPr
         />
       </MovablePanel>
 
-      {/* Guide — above the model, tilted down slightly */}
-      <MovablePanel position={[0, 1.95, -1.1]} rotation={[-0.25, 0, 0]} barY={-0.3} barColor={colors.accent}>
+      {/* Guide — above the model, tilted down toward the viewer */}
+      <MovablePanel position={[0, 1.85, -1.1]} rotation={[-0.5, 0, 0]} barY={-0.3} barColor={colors.accent}>
         <GuidePanel colors={colors} modelUrl={selectedModel?.url ?? null} />
       </MovablePanel>
 
